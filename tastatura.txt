@@ -1,6 +1,6 @@
-Andrei
-500
-3
-Lemonade 10 15
-Newspaper 25 30
-CarWash 50 60
+Alex 100
+4
+Lemonade 10 15 20 50
+Newspaper 25 40 60 150
+Pizza 80 100 200 500
+Oil 200 300 1000 2000

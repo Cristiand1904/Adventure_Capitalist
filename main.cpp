@@ -1,54 +1,35 @@
-#include <iostream>
-#include <fstream>
 #include "include/Game.h"
-#include "include/Business.h"
-#include "include/Player.h"
+#include <fstream>
+#include <iostream>
+#include <string>
 
 int main() {
-    std::ifstream fin("../tastatura.txt");
-    if (!fin.is_open()) {
+    std::ifstream fin("tastatura.txt");
+    if (!fin) {
         std::cerr << "Eroare: nu s-a putut deschide fisierul tastatura.txt\n";
         return 1;
     }
 
     std::string playerName;
-    double startMoney;
-    fin >> playerName >> startMoney;
+    double initialMoney;
+    fin >> playerName >> initialMoney;
 
-    Player p(playerName, startMoney);
-    int nrBusiness;
-    fin >> nrBusiness;
+    Player p(playerName, initialMoney);
 
-    for (int i = 0; i < nrBusiness; i++) {
+    int n;
+    fin >> n; // numărul de business-uri
+
+    for (int i = 0; i < n; ++i) {
         std::string nume;
-        double profit, costUpgrade;
-        fin >> nume >> profit >> costUpgrade;
-        p.addBusiness(Business(nume, profit, costUpgrade));
+        double profit, upgrade, cost, managerCost;
+        fin >> nume >> profit >> upgrade >> cost >> managerCost;
+        p.addBusiness(Business(nume, profit, upgrade, cost, managerCost));
     }
+
+    fin.close();
 
     Game game(p);
+    game.start();
 
-    while (true) {
-        game.showStatus();
-        std::cout << "1. Ruleaza un ciclu\n";
-        std::cout << "2. Fa upgrade la un business\n";
-        std::cout << "3. Iesi din joc\n";
-        std::cout << "Optiunea: ";
-
-        int opt;
-        std::cin >> opt;
-
-        if (opt == 1) {
-            game.runCycle();
-        } else if (opt == 2) {
-            game.interactiveUpgrade();
-        } else if (opt == 3) {
-            break;
-        } else {
-            std::cout << "Optiune invalida.\n";
-        }
-    }
-
-    std::cout << "\nJoc terminat. Ai ramas cu " << static_cast<int>(p.getBusinesses().size()) << " afaceri active.\n";
     return 0;
 }

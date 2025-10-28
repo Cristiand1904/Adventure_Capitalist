@@ -1,19 +1,20 @@
-#ifndef GAME_H
-#define GAME_H
-
-#include <vector>
+#pragma once
 #include <iostream>
+#include <fstream>
+#include <string>
 #include "Player.h"
 
 class Game {
+private:
     Player player;
 
 public:
-    Game(const Player& p);
-    void showStatus() const;
-    void runCycle();
-    void interactiveUpgrade();
-    bool upgradeBusiness(int index, int times, double pricePerLevel);
-};
+    explicit Game(const Player& p);
 
-#endif
+    void start();
+    void displayBusinesses() const;
+    void interactiveMenu();
+    void interactiveUpgrade();
+    void buyBusiness();
+    void buyManager();
+};

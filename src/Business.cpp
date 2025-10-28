@@ -1,36 +1,56 @@
 #include "../include/Business.h"
 
-Business::Business(const std::string& n, double profit, double upgrade)
-    : name(n), profitPerCycle(profit), upgradeCost(upgrade), level(1) {}
-
 void Business::levelUp() {
     level++;
-    profitPerCycle = static_cast<int>(profitPerCycle * 1.25);
+    profitPerCycle *= 1.5;
+    upgradeCost *= 1.4;
 }
 
-void Business::increaseUpgradeCost(double factor) {
-    upgradeCost = static_cast<int>(upgradeCost * factor);
+void Business::unlock(double& money) {
+    if (!owned && money >= purchaseCost) {
+        money -= purchaseCost;
+        owned = true;
+        std::cout << "Ai cumparat business-ul: " << name << "!\n";
+    } else if (owned) {
+        std::cout << "Deja detii acest business.\n";
+    } else {
+        std::cout << "Nu ai destui bani pentru a cumpara " << name << ".\n";
+    }
 }
 
-double Business::getProfitPerCycle() const {
-    return profitPerCycle;
+void Business::unlockManager(double money) {
+    if (!owned) {
+        std::cout << "Trebuie sa cumperi mai intai business-ul.\n";
+        return;
+    }
+
+    if (managerUnlocked) {
+        std::cout << "Deja ai manager pentru " << name << ".\n";
+        return;
+    }
+
+    if (money >= managerCost) {
+        managerUnlocked = true;
+        std::cout << "Manager cumparat pentru " << name << "!\n";
+    } else {
+        std::cout << "Nu ai destui bani pentru managerul la " << name << ".\n";
+    }
 }
 
-int Business::getLevel() const {
-    return level;
-}
-
-const std::string& Business::getName() const {
-    return name;
-}
-
-double Business::getUpgradeCost() const {
-    return upgradeCost;
-}
+double Business::getProfitPerCycle() const { return profitPerCycle; }
+double Business::getUpgradeCost() const { return upgradeCost; }
+double Business::getPurchaseCost() const { return purchaseCost; }
+double Business::getManagerCost() const { return managerCost; }
+const std::string& Business::getName() const { return name; }
+int Business::getLevel() const { return level; }
+bool Business::isOwned() const { return owned; }
+bool Business::hasManager() const { return managerUnlocked; }
 
 std::ostream& operator<<(std::ostream& os, const Business& b) {
     os << "[Business] " << b.name
+       << " | Status: " << (b.owned ? "OWNED" : "LOCKED")
        << " | lvl=" << b.level
-       << " | profit/ciclu=" << static_cast<int>(b.profitPerCycle);
+       << " | profit=" << static_cast<int>(b.profitPerCycle)
+       << " | Manager: " << (b.managerUnlocked ? "Unlock" : "Lock");
     return os;
 }

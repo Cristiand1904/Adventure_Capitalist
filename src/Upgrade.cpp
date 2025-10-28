@@ -1,16 +1,28 @@
 #include "../include/Upgrade.h"
 
-Upgrade::Upgrade(const std::string& n, double m) : name(n), multiplier(m) {}
+Upgrade::Upgrade(const std::string& n, double m, double c)
+    : name(n), multiplier(m), cost(c), purchased(false) {}
+
+bool Upgrade::canPurchase(double money) const {
+    return !purchased && money >= cost;
+}
+
+void Upgrade::purchase() {
+    purchased = true;
+}
+
+bool Upgrade::isPurchased() const {
+    return purchased;
+}
 
 double Upgrade::getMultiplier() const {
     return multiplier;
 }
 
-const std::string& Upgrade::getName() const {
-    return name;
+double Upgrade::getCost() const {
+    return cost;
 }
 
-std::ostream& operator<<(std::ostream& os, const Upgrade& u) {
-    os << "[Upgrade] " << u.name << " (x" << u.multiplier << ")";
-    return os;
+const std::string& Upgrade::getName() const {
+    return name;
 }

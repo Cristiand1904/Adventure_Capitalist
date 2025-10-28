@@ -1,17 +1,38 @@
 #include "../include/Player.h"
-#include <iostream>
 
-Player::Player(const std::string& n, double m) : name(n), money(m) {}
+Player::Player(const std::string& n, double initialMoney)
+    : name(n), money(initialMoney) {}
+
+const std::string& Player::getName() const { return name; }
+double Player::getMoney() const { return money; }
+std::vector<Business>& Player::getBusinesses() { return businesses; }
+const std::vector<Business>& Player::getBusinesses() const { return businesses; }
 
 void Player::addBusiness(const Business& b) {
     businesses.push_back(b);
 }
 
-void Player::earnCycle(int cycles) {
-    double total = 0;
-    for (const auto& b : businesses)
-        total += b.getProfitPerCycle() * cycles;
-    money += total;
+void Player::unlockBusiness(int index) {
+    if (index >= 0 && index < (int)businesses.size() && !businesses[index].isOwned()) {
+        double cost = businesses[index].getPurchaseCost();
+        if (money >= cost) {
+            money -= cost;
+            businesses[index].unlock(money);
+            std::cout << "Ai cumparat " << businesses[index].getName() << "!\n";
+        } else {
+            std::cout << "Nu ai destui bani pentru a cumpara " << businesses[index].getName() << ".\n";
+        }
+    } else {
+        std::cout << "Business invalid sau deja cumparat.\n";
+    }
+}
+
+void Player::earnCycle() {
+    for (auto& b : businesses) {
+        if (b.isOwned()) {
+            money += b.getProfitPerCycle();
+        }
+    }
 }
 
 bool Player::pay(double amount) {
@@ -22,18 +43,10 @@ bool Player::pay(double amount) {
     return false;
 }
 
-const std::vector<Business>& Player::getBusinesses() const {
-    return businesses;
-}
-
-std::vector<Business>& Player::getBusinesses() {
-    return businesses;
-}
-
-std::ostream& operator<<(std::ostream& os, const Player& p) {
-    os << "[Player] " << p.name << " | money=" << (int)p.money << "\n";
-    os << "  Businesses:\n";
-    for (const auto& b : p.businesses)
-        os << "   - " << b << "\n";
-    return os;
+void Player::printBusinesses() const {
+    std::cout << "\n[Jucator] " << name << " | Bani: " << static_cast<int>(money) << "$\n";
+    std::cout << "Lista business-uri:\n";
+    for (const auto& b : businesses) {
+        std::cout << "  " << b << "\n";
+    }
 }
