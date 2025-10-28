@@ -1,42 +1,60 @@
 #include "../include/Game.h"
-#include <iostream>
+#include <iomanip>
 
 Game::Game(const Player& p) : player(p) {}
-Game::~Game() = default;
-
-bool Game::upgradeBusiness(int index, int times, double pricePerLevel) {
-    auto& list = player.accessBusinesses();
-    if (index < 0 || index >= (int)list.size()) {
-        std::cout << "Index invalid.\n";
-        return false;
-    }
-
-    double totalCost = times * pricePerLevel;
-    if (!player.pay(totalCost)) {
-        std::cout << "Fonduri insuficiente pentru " << times << " upgrade-uri.\n";
-        return false;
-    }
-
-    for (int i = 0; i < times; ++i)
-        list[index].levelUp();
-
-    std::cout << "Ai facut " << times << " upgrade-uri la " << list[index].getName()
-              << " pentru " << totalCost << "$.\n";
-    return true;
-}
-
-double Game::runCycles(int cycles) {
-    return player.earnCycle(cycles);
-}
 
 void Game::showStatus() const {
+    std::cout << "===== STATUS =====\n";
     std::cout << player;
+    std::cout << "==================\n";
 }
 
-Player& Game::accessPlayer() { return player; }
-const Player& Game::getPlayer() const { return player; }
+void Game::runCycle() {
+    player.earnCycle(1);
+}
 
-std::ostream& operator<<(std::ostream& os, const Game& g) {
-    os << "[Game] Player money=" << g.getPlayer().getMoney();
-    return os;
+bool Game::upgradeBusiness(int index, int times, double pricePerLevel) {
+    auto& businesses = player.getBusinesses();
+    if (index < 0 || index >= (int)businesses.size())
+        return false;
+
+    double cost = pricePerLevel * times;
+    if (player.pay(cost)) {
+        for (int i = 0; i < times; ++i)
+            businesses[index].levelUp();
+        return true;
+    }
+    return false;
+}
+
+void Game::interactiveUpgrade() {
+    while (true) {
+        std::cout << "\nAlege business-ul:\n";
+        const auto& businesses = player.getBusinesses();
+        int i = 1;
+        for (const auto& b : businesses) {
+            std::cout << i++ << ". " << b.getName()
+                      << " (lvl " << b.getLevel()
+                      << ") - profit: " << (int)b.getProfitPerCycle()
+                      << "$/ciclu - cost upgrade: " << b.getUpgradeCost() << "$\n";
+        }
+        std::cout << i << ". Renunta\n";
+        std::cout << "Optiunea: ";
+
+        int opt;
+        std::cin >> opt;
+        if (opt == i) break;
+
+        if (opt > 0 && opt < i) {
+            auto& b = player.getBusinesses()[opt - 1];
+            double cost = b.getUpgradeCost();
+            if (player.pay(cost)) {
+                b.levelUp();
+                b.increaseUpgradeCost(1.5);
+                std::cout << "Upgrade efectuat la " << b.getName() << "!\n";
+            } else {
+                std::cout << "Fonduri insuficiente pentru upgrade la " << b.getName() << ".\n";
+            }
+        }
+    }
 }

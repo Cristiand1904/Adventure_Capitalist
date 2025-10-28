@@ -1,35 +1,15 @@
 #include "../include/Business.h"
-#include <cmath>
 
-Business::Business(const std::string& name, double profitPerCycle, double upgradeBaseCost)
-    : name(name), profitPerCycle(profitPerCycle), level(1), upgradeBaseCost(upgradeBaseCost) {}
-
-Business::Business(const Business& other)
-    : name(other.name), profitPerCycle(other.profitPerCycle), level(other.level), upgradeBaseCost(other.upgradeBaseCost) {}
-
-Business& Business::operator=(const Business& other) {
-    if (this != &other) {
-        name = other.name;
-        profitPerCycle = other.profitPerCycle;
-        level = other.level;
-        upgradeBaseCost = other.upgradeBaseCost;
-    }
-    return *this;
-}
-
-Business::~Business() = default;
+Business::Business(const std::string& n, double profit, double upgrade)
+    : name(n), profitPerCycle(profit), upgradeCost(upgrade), level(1) {}
 
 void Business::levelUp() {
     level++;
     profitPerCycle = static_cast<int>(profitPerCycle * 1.25);
 }
 
-double Business::projectedProfit() const {
-    return profitPerCycle;
-}
-
-const std::string& Business::getName() const {
-    return name;
+void Business::increaseUpgradeCost(double factor) {
+    upgradeCost = static_cast<int>(upgradeCost * factor);
 }
 
 double Business::getProfitPerCycle() const {
@@ -40,8 +20,12 @@ int Business::getLevel() const {
     return level;
 }
 
-double Business::getUpgradeBaseCost() const {
-    return upgradeBaseCost;
+const std::string& Business::getName() const {
+    return name;
+}
+
+double Business::getUpgradeCost() const {
+    return upgradeCost;
 }
 
 std::ostream& operator<<(std::ostream& os, const Business& b) {

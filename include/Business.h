@@ -5,24 +5,20 @@
 #include <iostream>
 
 class Business {
-private:
     std::string name;
     double profitPerCycle;
+    double upgradeCost;
     int level;
-    double upgradeBaseCost;
 
 public:
-    Business(const std::string& name, double profitPerCycle, double upgradeBaseCost);
-    Business(const Business& other);
-    Business& operator=(const Business& other);
-    ~Business();
+    Business(const std::string& name, double profit, double upgradeCost);
 
     void levelUp();
-    double projectedProfit() const;
-    const std::string& getName() const;
+    void increaseUpgradeCost(double factor);
     double getProfitPerCycle() const;
     int getLevel() const;
-    double getUpgradeBaseCost() const;
+    const std::string& getName() const;
+    double getUpgradeCost() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Business& b);
 };

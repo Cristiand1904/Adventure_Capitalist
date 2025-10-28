@@ -1,9 +1,6 @@
 Andrei
-200
+500
 3
-Lemonade Stand
-5 15
-Hotdog Cart
-10 25
-Pizza Shop
-20 60
+Lemonade 10 15
+Newspaper 25 30
+CarWash 50 60
