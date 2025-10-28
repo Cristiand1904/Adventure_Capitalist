@@ -1,2 +1,9 @@
-5
-11 22 33 44 55
+Andrei
+200
+3
+Lemonade Stand
+5 15
+Hotdog Cart
+10 25
+Pizza Shop
+20 60
