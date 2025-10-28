@@ -28,7 +28,7 @@ void Game::interactiveMenu() {
         std::cin >> opt;
 
         switch (opt) {
-            case 1: player.earnCycle(); break;
+            case 1: player.earnProfit(); break;
             case 2: interactiveUpgrade(); break;
             case 3: buyBusiness(); break;
             case 4: buyManager(); break;
@@ -39,36 +39,70 @@ void Game::interactiveMenu() {
 }
 
 void Game::interactiveUpgrade() {
-    auto& businesses = player.getBusinesses();
-    std::cout << "\nAlege business-ul pentru upgrade:\n";
+    std::vector<Business>& businesses = player.getBusinesses();
+
+    std::cout << "\n=== UPGRADE BUSINESS ===\n";
     for (size_t i = 0; i < businesses.size(); ++i) {
-        std::cout << i << ". " << businesses[i].getName()
-                  << " (cost upgrade: " << static_cast<int>(businesses[i].getUpgradeCost()) << "$)\n";
+        const auto& b = businesses[i];
+        std::cout << i << ". " << b.getName()
+                  << " | Status: " << (b.isOwned() ? "OWNED" : "LOCKED")
+                  << " | lvl=" << b.getLevel()
+                  << " | profit=" << static_cast<int>(b.getProfitPerCycle())
+                  << " | cost upgrade: " << static_cast<int>(b.getUpgradeCost()) << "$\n";
     }
 
     int idx;
-    std::cout << "Optiunea: ";
+    std::cout << "\nAlege business-ul pentru upgrade: ";
     std::cin >> idx;
 
-    if (idx >= 0 && idx < (int)businesses.size()) {
-        Business& b = businesses[idx];
-        double cost = b.getUpgradeCost();
+    if (idx < 0 || idx >= (int)businesses.size()) {
+        std::cout << "Index invalid.\n";
+        return;
+    }
 
-        if (!b.isOwned()) {
-            std::cout << "Nu ai deblocat acest business!\n";
-            return;
-        }
+    Business& b = businesses[idx];
+    if (!b.isOwned()) {
+        std::cout << "Nu poti face upgrade la un business blocat.\n";
+        return;
+    }
 
-        if (player.pay(cost)) {
+    int numUpgrades;
+    std::cout << "Cate upgrade-uri vrei sa faci? ";
+    std::cin >> numUpgrades;
+
+    if (numUpgrades <= 0) {
+        std::cout << "Numar invalid de upgrade-uri.\n";
+        return;
+    }
+
+    double availableMoney = player.getMoney();
+    double currentCost = b.getUpgradeCost();
+    int upgradesDone = 0;
+    double totalCost = 0.0;
+
+    for (int i = 0; i < numUpgrades; ++i) {
+        if (availableMoney >= currentCost) {
+            availableMoney -= currentCost;
+            totalCost += currentCost;
             b.levelUp();
-            std::cout << "Upgrade efectuat pentru " << b.getName() << "!\n";
+            b.increaseUpgradeCost(1.5);
+            upgradesDone++;
+            currentCost = b.getUpgradeCost();
         } else {
-            std::cout << "Nu ai destui bani pentru upgrade.\n";
+            std::cout << "Nu mai ai bani pentru mai multe upgrade-uri.\n";
+            break;
         }
+    }
+
+    if (upgradesDone > 0) {
+        player.spendMoney(totalCost);
+        std::cout << "Ai facut " << upgradesDone << " upgrade-uri la " << b.getName()
+                  << " pentru un total de " << static_cast<int>(totalCost) << "$!\n";
     } else {
-        std::cout << "Optiune invalida.\n";
+        std::cout << "Nu ai avut bani pentru niciun upgrade.\n";
     }
 }
+
 
 void Game::buyBusiness() {
     auto& businesses = player.getBusinesses();
@@ -99,10 +133,11 @@ void Game::buyManager() {
     if (idx >= 0 && idx < (int)businesses.size()) {
         Business& b = businesses[idx];
         if (!b.isOwned()) {
-            std::cout << "Nu poti cumpara manager pentru un business neblocat!\n";
+            std::cout << "Nu poti cumpara manager pentru un business blocat!\n";
             return;
         }
-        b.unlockManager(player.getMoney());
+        double& moneyRef = player.accessMoney();
+        b.unlockManager(moneyRef);
     } else {
         std::cout << "Optiune invalida.\n";
     }

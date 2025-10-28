@@ -1,6 +1,6 @@
 #pragma once
-#include <iostream>
 #include <string>
+#include <iostream>
 
 class Business {
 private:
@@ -11,25 +11,24 @@ private:
     double managerCost;
     int level;
     bool owned;
-    bool managerUnlocked;
+    bool hasManager;
 
 public:
-    Business(const std::string& name, double profit, double upgrade, double cost, double manager)
-        : name(name), profitPerCycle(profit), upgradeCost(upgrade),
-          purchaseCost(cost), managerCost(manager),
-          level(0), owned(false), managerUnlocked(false) {}
+    Business(const std::string& name, double profit, double upgrade, double cost, double manager);
 
     void levelUp();
+    void increaseUpgradeCost(double factor);
     void unlock(double& money);
-    void unlockManager(double money);
+    void unlockManager(double& money);
+
+    bool isOwned() const;
+    bool hasManagerUnlocked() const;
+    const std::string& getName() const;
+    int getLevel() const;
     double getProfitPerCycle() const;
     double getUpgradeCost() const;
     double getPurchaseCost() const;
     double getManagerCost() const;
-    const std::string& getName() const;
-    int getLevel() const;
-    bool isOwned() const;
-    bool hasManager() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Business& b);
 };

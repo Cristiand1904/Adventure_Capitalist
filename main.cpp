@@ -1,29 +1,27 @@
 #include "include/Game.h"
 #include <fstream>
 #include <iostream>
-#include <string>
 
 int main() {
     std::ifstream fin("tastatura.txt");
-    if (!fin) {
-        std::cerr << "Eroare: nu s-a putut deschide fisierul tastatura.txt\n";
+    if (!fin.is_open()) {
+        std::cout << "Eroare: fisierul 'tastatura.txt' nu a putut fi deschis.\n";
         return 1;
     }
 
-    std::string playerName;
-    double initialMoney;
-    fin >> playerName >> initialMoney;
+    std::string nume;
+    double bani;
+    fin >> nume >> bani;
 
-    Player p(playerName, initialMoney);
+    Player p(nume, bani);
 
     int n;
-    fin >> n; // numărul de business-uri
-
+    fin >> n;
     for (int i = 0; i < n; ++i) {
-        std::string nume;
+        std::string numeBusiness;
         double profit, upgrade, cost, managerCost;
-        fin >> nume >> profit >> upgrade >> cost >> managerCost;
-        p.addBusiness(Business(nume, profit, upgrade, cost, managerCost));
+        fin >> numeBusiness >> profit >> upgrade >> cost >> managerCost;
+        p.getBusinesses().emplace_back(numeBusiness, profit, upgrade, cost, managerCost);
     }
 
     fin.close();
