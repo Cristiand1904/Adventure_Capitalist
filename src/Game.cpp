@@ -270,7 +270,7 @@ void Game::upgradeManager() {
         b.modifyUpgradeCost(0.9);
         std::cout << "Managerul de la " << b.getName() << " a fost imbunatatit!\n";
 
-        for (conts auto& biz : player.accessBusinesses())
+        for (const auto& biz : player.accessBusinesses())
             if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
     }
 }
