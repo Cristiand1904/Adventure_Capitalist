@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main() {
-    std::ifstream fin("tastatura.txt");
+    std::ifstream fin("../tastatura.txt"); // sau "tastatura.txt" dacă fișierul e în cmake-build-debug
     if (!fin.is_open()) {
         std::cout << "Eroare: fisierul 'tastatura.txt' nu a putut fi deschis.\n";
         return 1;
@@ -21,7 +21,7 @@ int main() {
         std::string numeBusiness;
         double profit, upgrade, cost, managerCost;
         fin >> numeBusiness >> profit >> upgrade >> cost >> managerCost;
-        p.getBusinesses().emplace_back(numeBusiness, profit, upgrade, cost, managerCost);
+        p.accessBusinesses().emplace_back(numeBusiness, profit, upgrade, cost, managerCost);
     }
 
     fin.close();

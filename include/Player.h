@@ -4,22 +4,23 @@
 #include "Business.h"
 
 class Player {
+private:
     std::string name;
     double money;
     std::vector<Business> businesses;
 
 public:
-    Player(const std::string& n, double m);
+    Player(const std::string& name, double money);
 
     const std::string& getName() const;
     double getMoney() const;
-    void addMoney(double amount);
     void spendMoney(double amount);
-    double& accessMoney();
+    void earnProfit();
+    void unlockBusiness(int index);
 
     std::vector<Business>& getBusinesses();
     const std::vector<Business>& getBusinesses() const;
+    std::vector<Business>& accessBusinesses(); // pentru citirea din fișier
 
-    void earnProfit();
-    void unlockBusiness(int index);
+    double& accessMoney(); // pentru referință directă în Game (buyManager etc.)
 };

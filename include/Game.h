@@ -1,20 +1,21 @@
 #pragma once
 #include <iostream>
-#include <fstream>
-#include <string>
+#include <vector>
 #include "Player.h"
+#include "Business.h"
 
 class Game {
 private:
     Player player;
 
 public:
-    explicit Game(const Player& p);
+    Game(const Player& p);
 
-    void start();
     void displayBusinesses() const;
     void interactiveMenu();
     void interactiveUpgrade();
     void buyBusiness();
     void buyManager();
+    void upgradeManager();
+    void start();
 };

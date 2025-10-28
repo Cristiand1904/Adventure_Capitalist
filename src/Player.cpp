@@ -1,41 +1,49 @@
 #include "../include/Player.h"
 #include <iostream>
 
-Player::Player(const std::string& n, double m) : name(n), money(m) {}
+Player::Player(const std::string& name, double money)
+    : name(name), money(money) {}
 
-const std::string& Player::getName() const { return name; }
-double Player::getMoney() const { return money; }
-void Player::addMoney(double amount) { money += amount; }
-void Player::spendMoney(double amount) { money -= amount; }
-double& Player::accessMoney() { return money; }
+const std::string& Player::getName() const {
+    return name;
+}
 
-std::vector<Business>& Player::getBusinesses() { return businesses; }
-const std::vector<Business>& Player::getBusinesses() const { return businesses; }
+double Player::getMoney() const {
+    return money;
+}
+
+void Player::spendMoney(double amount) {
+    if (money >= amount) money -= amount;
+}
 
 void Player::earnProfit() {
     for (auto& b : businesses) {
-        if (b.isOwned())
+        if (b.isOwned()) {
             money += b.getProfitPerCycle();
+        }
     }
 }
 
 void Player::unlockBusiness(int index) {
-    if (index < 0 || index >= (int)businesses.size()) {
-        std::cout << "Index invalid.\n";
-        return;
-    }
-
-    Business& b = businesses[index];
-    if (b.isOwned()) {
-        std::cout << "Business-ul este deja detinut.\n";
-        return;
-    }
-
-    double cost = b.getPurchaseCost();
-    if (money >= cost) {
-        b.unlock(money);
-        std::cout << "Ai cumparat " << b.getName() << " pentru " << (int)cost << "$.\n";
+    if (index >= 0 && index < (int)businesses.size()) {
+        businesses[index].unlock(money);
     } else {
-        std::cout << "Nu ai destui bani pentru " << b.getName() << ".\n";
+        std::cout << "Index invalid.\n";
     }
+}
+
+std::vector<Business>& Player::getBusinesses() {
+    return businesses;
+}
+
+const std::vector<Business>& Player::getBusinesses() const {
+    return businesses;
+}
+
+std::vector<Business>& Player::accessBusinesses() {
+    return businesses;
+}
+
+double& Player::accessMoney() {
+    return money;
 }
