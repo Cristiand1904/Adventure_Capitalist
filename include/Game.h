@@ -9,7 +9,7 @@ private:
     Player player;
 
 public:
-    Game(const Player& p);
+    explicit Game(const Player& p);
 
     void displayBusinesses() const;
     void interactiveMenu();

@@ -8,7 +8,7 @@ private:
     bool purchased;
 
 public:
-    Upgrade(double c = 0, double m = 1.0)
+    explicit Upgrade(double c = 0, double m = 1.0)
         : cost(c), multiplier(m), purchased(false) {}
 
     bool canPurchase(double money) const;
