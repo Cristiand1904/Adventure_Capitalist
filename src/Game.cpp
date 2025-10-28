@@ -9,9 +9,8 @@ void Game::displayBusinesses() const {
     std::cout << "[Jucator] " << player.getName()
               << " | Bani: " << static_cast<int>(player.getMoney()) << "$\n";
     std::cout << "======================================\n";
-    std::cout << std::left;
 
-    const auto& businesses = player.getBusinesses();
+    std::cout << std::left;
     std::cout << std::setw(3) << "#"
               << std::setw(14) << "Business"
               << std::setw(12) << "Status"
@@ -19,6 +18,7 @@ void Game::displayBusinesses() const {
               << std::setw(12) << "Profit"
               << std::setw(12) << "Manager" << "\n";
 
+    const auto& businesses = player.getBusinesses();
     for (size_t i = 0; i < businesses.size(); ++i) {
         const auto& b = businesses[i];
         std::cout << std::setw(3) << (i + 1)
@@ -56,18 +56,21 @@ void Game::interactiveMenu() {
             default: std::cout << "Optiune invalida.\n"; break;
         }
 
-        for (auto& b : player.getBusinesses())
-            if (b.hasManagerUnlocked()) player.earnProfit();
+        // Managerii rulează automat cicluri
+        for (auto& b : player.accessBusinesses()) {
+            if (b.hasManagerUnlocked() && b.isOwned()) {
+                player.addMoney(b.getProfitPerCycle());
+            }
+        }
     }
 }
 
 void Game::interactiveUpgrade() {
-    std::vector<Business>& businesses = player.getBusinesses();
+    auto& businesses = player.accessBusinesses();
 
     while (true) {
         std::cout << "\n=== UPGRADE BUSINESS ===\n";
-        std::cout << std::left;
-        std::cout << std::setw(3) << "#"
+        std::cout << std::left << std::setw(3) << "#"
                   << std::setw(14) << "Business"
                   << std::setw(12) << "Status"
                   << std::setw(8) << "Lvl"
@@ -81,10 +84,9 @@ void Game::interactiveUpgrade() {
                       << std::setw(12) << (b.isOwned() ? "OWNED" : "LOCKED")
                       << std::setw(8) << b.getLevel()
                       << std::setw(12) << static_cast<int>(b.getProfitPerCycle())
-                      << std::setw(16) << (std::to_string(static_cast<int>(b.getUpgradeCost())) + "$")
-                      << "\n";
+                      << std::setw(16) << static_cast<int>(b.getUpgradeCost()) << "$\n";
         }
-        std::cout << std::setw(3) << "0." << "Inapoi la meniul principal\n";
+        std::cout << "0. Inapoi la meniul principal\n";
 
         int idx;
         std::cout << "\nOptiunea: ";
@@ -117,7 +119,12 @@ void Game::interactiveUpgrade() {
                 availableMoney -= currentCost;
                 totalCost += currentCost;
                 b.levelUp();
-                b.increaseUpgradeCost(1.5);
+                if (b.hasManagerUnlocked()) {
+                    b.modifyProfit(1.03);      // +3% profit
+                    b.modifyUpgradeCost(0.9);  // -10% cost upgrade
+                } else {
+                    b.increaseUpgradeCost(1.5);
+                }
                 upgradesDone++;
                 currentCost = b.getUpgradeCost();
             } else break;
@@ -129,18 +136,17 @@ void Game::interactiveUpgrade() {
                       << " pentru " << static_cast<int>(totalCost) << "$!\n";
         } else std::cout << "Nu ai avut bani pentru niciun upgrade.\n";
 
-        for (auto& biz : player.getBusinesses())
-            if (biz.hasManagerUnlocked()) player.earnProfit();
+        for (auto& biz : player.accessBusinesses())
+            if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
     }
 }
 
 void Game::buyBusiness() {
-    auto& businesses = player.getBusinesses();
+    auto& businesses = player.accessBusinesses();
 
     while (true) {
         std::cout << "\n=== CUMPARA BUSINESS ===\n";
-        std::cout << std::left;
-        std::cout << std::setw(3) << "#"
+        std::cout << std::left << std::setw(3) << "#"
                   << std::setw(14) << "Business"
                   << std::setw(12) << "Status"
                   << std::setw(16) << "Cost Cumparare" << "\n";
@@ -150,10 +156,9 @@ void Game::buyBusiness() {
             std::cout << std::setw(3) << (i + 1)
                       << std::setw(14) << b.getName()
                       << std::setw(12) << (b.isOwned() ? "OWNED" : "LOCKED")
-                      << std::setw(16) << (std::to_string(static_cast<int>(b.getPurchaseCost())) + "$")
-                      << "\n";
+                      << std::setw(16) << static_cast<int>(b.getPurchaseCost()) << "$\n";
         }
-        std::cout << std::setw(3) << "0." << "Inapoi la meniul principal\n";
+        std::cout << "0. Inapoi la meniul principal\n";
 
         int idx;
         std::cout << "\nOptiunea: ";
@@ -167,18 +172,17 @@ void Game::buyBusiness() {
 
         player.unlockBusiness(idx - 1);
 
-        for (auto& b : player.getBusinesses())
-            if (b.hasManagerUnlocked()) player.earnProfit();
+        for (auto& b : player.accessBusinesses())
+            if (b.hasManagerUnlocked()) player.addMoney(b.getProfitPerCycle());
     }
 }
 
 void Game::buyManager() {
-    auto& businesses = player.getBusinesses();
+    auto& businesses = player.accessBusinesses();
 
     while (true) {
         std::cout << "\n=== CUMPARA MANAGER ===\n";
-        std::cout << std::left;
-        std::cout << std::setw(3) << "#"
+        std::cout << std::left << std::setw(3) << "#"
                   << std::setw(14) << "Business"
                   << std::setw(12) << "Status"
                   << std::setw(16) << "Cost Manager" << "\n";
@@ -188,10 +192,9 @@ void Game::buyManager() {
             std::cout << std::setw(3) << (i + 1)
                       << std::setw(14) << b.getName()
                       << std::setw(12) << (b.hasManagerUnlocked() ? "OWNED" : "LOCKED")
-                      << std::setw(16) << (std::to_string(static_cast<int>(b.getManagerCost())) + "$")
-                      << "\n";
+                      << std::setw(16) << static_cast<int>(b.getManagerCost()) << "$\n";
         }
-        std::cout << std::setw(3) << "0." << "Inapoi la meniul principal\n";
+        std::cout << "0. Inapoi la meniul principal\n";
 
         int idx;
         std::cout << "\nOptiunea: ";
@@ -212,18 +215,17 @@ void Game::buyManager() {
         double& moneyRef = player.accessMoney();
         b.unlockManager(moneyRef);
 
-        for (auto& biz : player.getBusinesses())
-            if (biz.hasManagerUnlocked()) player.earnProfit();
+        for (auto& biz : player.accessBusinesses())
+            if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
     }
 }
 
 void Game::upgradeManager() {
-    auto& businesses = player.getBusinesses();
+    auto& businesses = player.accessBusinesses();
 
     while (true) {
         std::cout << "\n=== UPGRADE MANAGER ===\n";
-        std::cout << std::left;
-        std::cout << std::setw(3) << "#"
+        std::cout << std::left << std::setw(3) << "#"
                   << std::setw(14) << "Business"
                   << std::setw(12) << "Status"
                   << std::setw(8) << "Lvl"
@@ -237,10 +239,9 @@ void Game::upgradeManager() {
                       << std::setw(12) << (b.hasManagerUnlocked() ? "OWNED" : "LOCKED")
                       << std::setw(8) << b.getLevel()
                       << std::setw(12) << static_cast<int>(b.getProfitPerCycle())
-                      << std::setw(16) << (std::to_string(static_cast<int>(b.getManagerCost() * 0.5)) + "$")
-                      << "\n";
+                      << std::setw(16) << static_cast<int>(b.getManagerCost() * 0.5) << "$\n";
         }
-        std::cout << std::setw(3) << "0." << "Inapoi la meniul principal\n";
+        std::cout << "0. Inapoi la meniul principal\n";
 
         int idx;
         std::cout << "\nOptiunea: ";
@@ -265,12 +266,12 @@ void Game::upgradeManager() {
         }
 
         player.spendMoney(cost);
-        b.levelUp();
-        b.increaseUpgradeCost(0.9);
+        b.modifyProfit(1.03);
+        b.modifyUpgradeCost(0.9);
         std::cout << "Managerul de la " << b.getName() << " a fost imbunatatit!\n";
 
-        for (auto& biz : player.getBusinesses())
-            if (biz.hasManagerUnlocked()) player.earnProfit();
+        for (auto& biz : player.accessBusinesses())
+            if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
     }
 }
 

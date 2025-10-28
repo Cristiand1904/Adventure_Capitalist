@@ -9,9 +9,7 @@ private:
     double upgradeCost;
     double purchaseCost;
     double managerCost;
-    double managerUpgradeCost;
     int level;
-    int managerLevel;
     bool owned;
     bool hasManager;
 
@@ -23,21 +21,18 @@ public:
     void unlock(double& money);
     void unlockManager(double& money);
 
-    // manager upgrade system
-    void upgradeManager(double& money);
-    bool canUpgradeManager() const;
+    // noi:
+    void modifyProfit(double factor);
+    void modifyUpgradeCost(double factor);
 
-    // getters
     bool isOwned() const;
     bool hasManagerUnlocked() const;
     const std::string& getName() const;
     int getLevel() const;
-    int getManagerLevel() const;
     double getProfitPerCycle() const;
     double getUpgradeCost() const;
     double getPurchaseCost() const;
     double getManagerCost() const;
-    double getManagerUpgradeCost() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Business& b);
 };

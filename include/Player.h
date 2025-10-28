@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <string>
+#include <vector>
 #include "Business.h"
 
 class Player {
@@ -14,13 +14,16 @@ public:
 
     const std::string& getName() const;
     double getMoney() const;
+
     void spendMoney(double amount);
+    void addMoney(double amount);
+
     void earnProfit();
     void unlockBusiness(int index);
 
+    std::vector<Business>& accessBusinesses();
     std::vector<Business>& getBusinesses();
-    const std::vector<Business>& getBusinesses() const;
-    std::vector<Business>& accessBusinesses(); // pentru citirea din fișier
+    const std::vector<Business>& getBusinesses() const; // ✅ adăugat pentru metode const
 
-    double& accessMoney(); // pentru referință directă în Game (buyManager etc.)
+    double& accessMoney();
 };

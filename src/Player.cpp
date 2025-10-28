@@ -13,7 +13,15 @@ double Player::getMoney() const {
 }
 
 void Player::spendMoney(double amount) {
-    if (money >= amount) money -= amount;
+    if (money >= amount) {
+        money -= amount;
+    } else {
+        std::cout << "Nu ai destui bani!\n";
+    }
+}
+
+void Player::addMoney(double amount) {
+    money += amount;
 }
 
 void Player::earnProfit() {
@@ -25,25 +33,25 @@ void Player::earnProfit() {
 }
 
 void Player::unlockBusiness(int index) {
-    if (index >= 0 && index < (int)businesses.size()) {
-        businesses[index].unlock(money);
-    } else {
-        std::cout << "Index invalid.\n";
+    if (index < 0 || index >= static_cast<int>(businesses.size())) {
+        std::cout << "Index invalid!\n";
+        return;
     }
-}
 
-std::vector<Business>& Player::getBusinesses() {
-    return businesses;
-}
-
-const std::vector<Business>& Player::getBusinesses() const {
-    return businesses;
+    businesses[index].unlock(money);
 }
 
 std::vector<Business>& Player::accessBusinesses() {
     return businesses;
 }
 
+std::vector<Business>& Player::getBusinesses() {
+    return businesses;
+}
+
 double& Player::accessMoney() {
     return money;
+}
+const std::vector<Business>& Player::getBusinesses() const {
+    return businesses;
 }
