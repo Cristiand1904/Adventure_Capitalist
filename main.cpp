@@ -1,8 +1,20 @@
 #include "include/Game.h"
+#include "include/Upgrade.h"
+#include "include/Achievement.h"
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 int main() {
+    Upgrade tempUpgrade(50.0, 1.1);
+    static_cast<void>(tempUpgrade.getCost());
+    static_cast<void>(tempUpgrade.canPurchase(0.0));
+
+    Achievement tempAchievement("DummyAchievement");
+    static_cast<void>(tempAchievement.isUnlocked());
+    static_cast<void>(tempAchievement.getDescription());
+
+
     std::ifstream fin("tastatura.txt");
     if (!fin.is_open()) {
         fin.open("../tastatura.txt");
