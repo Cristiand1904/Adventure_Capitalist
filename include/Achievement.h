@@ -7,10 +7,10 @@ private:
     bool unlocked;
 
 public:
-    Achievement(const std::string& desc = "")
+    explicit Achievement(const std::string& desc = "")
         : description(desc), unlocked(false) {}
 
     bool isUnlocked() const;
-    std::string getDescription() const;
+    const std::string& getDescription() const;
     void unlock();
 };

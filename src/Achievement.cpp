@@ -4,7 +4,7 @@ bool Achievement::isUnlocked() const {
     return unlocked;
 }
 
-std::string Achievement::getDescription() const {
+const std::string& Achievement::getDescription() const {
     return description;
 }
 

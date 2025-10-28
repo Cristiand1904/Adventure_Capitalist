@@ -1,6 +1,6 @@
-Alex 10000
+Alex 70
 4
 Lemonade 10 15 20 50
 Newspaper 25 40 60 150
 Pizza 80 100 200 500
-Oil 200 300 1000 2000
+Oil 270 300 1000 2000
