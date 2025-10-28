@@ -3,7 +3,11 @@
 #include <iostream>
 
 int main() {
-    std::ifstream fin("../tastatura.txt"); // sau "tastatura.txt" dacă fișierul e în cmake-build-debug
+    std::ifstream fin("tastatura.txt");
+    if (!fin.is_open()) {
+        fin.open("../tastatura.txt");
+    }
+
     if (!fin.is_open()) {
         std::cout << "Eroare: fisierul 'tastatura.txt' nu a putut fi deschis.\n";
         return 1;
@@ -12,7 +16,6 @@ int main() {
     std::string nume;
     double bani;
     fin >> nume >> bani;
-
     Player p(nume, bani);
 
     int n;
