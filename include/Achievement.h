@@ -1,20 +1,16 @@
-#ifndef ACHIEVEMENT_H
-#define ACHIEVEMENT_H
-
+#pragma once
 #include <string>
 
 class Achievement {
 private:
-    std::string name;
     std::string description;
     bool unlocked;
 
 public:
-    Achievement(const std::string& name, const std::string& description);
-    void unlock();
-    bool isUnlocked() const;
-    const std::string& getName() const;
-    const std::string& getDescription() const;
-};
+    Achievement(const std::string& desc = "")
+        : description(desc), unlocked(false) {}
 
-#endif
+    bool isUnlocked() const;
+    std::string getDescription() const;
+    void unlock();
+};

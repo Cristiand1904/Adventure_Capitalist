@@ -1,10 +1,7 @@
 #include "../include/Upgrade.h"
 
-Upgrade::Upgrade(const std::string& n, double m, double c)
-    : name(n), multiplier(m), cost(c), purchased(false) {}
-
 bool Upgrade::canPurchase(double money) const {
-    return !purchased && money >= cost;
+    return money >= cost;
 }
 
 void Upgrade::purchase() {
@@ -21,8 +18,4 @@ double Upgrade::getMultiplier() const {
 
 double Upgrade::getCost() const {
     return cost;
-}
-
-const std::string& Upgrade::getName() const {
-    return name;
 }

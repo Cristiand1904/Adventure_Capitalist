@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <memory>
+#include "Upgrade.h"
 
 class Business {
 private:
@@ -12,16 +14,21 @@ private:
     int level;
     bool owned;
     bool hasManager;
+    std::unique_ptr<Upgrade> managerUpgrade;
 
 public:
     Business(const std::string& name, double profit, double upgrade, double cost, double manager);
+
+    Business(const Business& other);
+    Business& operator=(const Business& other);
+    Business(Business&&) noexcept = default;
+    Business& operator=(Business&&) noexcept = default;
 
     void levelUp();
     void increaseUpgradeCost(double factor);
     void unlock(double& money);
     void unlockManager(double& money);
 
-    // noi:
     void modifyProfit(double factor);
     void modifyUpgradeCost(double factor);
 
