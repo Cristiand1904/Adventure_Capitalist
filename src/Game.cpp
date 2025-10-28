@@ -215,7 +215,7 @@ void Game::buyManager() {
         double& moneyRef = player.accessMoney();
         b.unlockManager(moneyRef);
 
-        for (auto& biz : player.accessBusinesses())
+        for (const auto& biz : player.accessBusinesses())
             if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
     }
 }
