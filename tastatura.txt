@@ -1,4 +1,4 @@
-Alex 70
+Alex 50
 4
 Lemonade 10 15 20 50
 Newspaper 25 40 60 150
