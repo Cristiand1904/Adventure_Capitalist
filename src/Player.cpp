@@ -25,7 +25,7 @@ void Player::addMoney(double amount) {
 }
 
 void Player::earnProfit() {
-    for (auto& b : businesses) {
+    for (const auto& b : businesses) {
         if (b.isOwned()) {
             money += b.getProfitPerCycle();
         }
