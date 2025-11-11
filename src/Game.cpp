@@ -135,7 +135,7 @@ void Game::interactiveUpgrade() {
 }
 
 void Game::buyBusiness() {
-    auto& businesses = player.accessBusinesses();
+    const auto& businesses = player.accessBusinesses();
 
     while (true) {
         std::cout << "\n=== CUMPARA BUSINESS ===\n";
