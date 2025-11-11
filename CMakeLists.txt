@@ -89,10 +89,10 @@ endif()
 copy_files(FILES tastatura.txt COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
 # copy_files(FILES tastatura.txt config.json DIRECTORY images sounds COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
 # copy_files(DIRECTORY images sounds COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
-# Copiază tastatura.txt în folderul de build după compilare
+# Copiază date_intrare.txt în folderul de build după compilare
 add_custom_command(
         TARGET oop POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/tastatura.txt
-        ${CMAKE_CURRENT_BINARY_DIR}/tastatura.txt
+        ${CMAKE_SOURCE_DIR}/date_intrare.txt
+        ${CMAKE_CURRENT_BINARY_DIR}/date_intrare.txt
 )

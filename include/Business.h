@@ -24,6 +24,8 @@ public:
     Business(Business&&) noexcept = default;
     Business& operator=(Business&&) noexcept = default;
 
+    ~Business() = default;
+
     void levelUp();
     void increaseUpgradeCost(double factor);
     void unlock(double& money);

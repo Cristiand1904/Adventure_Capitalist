@@ -56,12 +56,9 @@ void Game::interactiveMenu() {
             default: std::cout << "Optiune invalida.\n"; break;
         }
 
-        // Managerii rulează automat cicluri
-        for (const auto& b : player.accessBusinesses()) {
-            if (b.hasManagerUnlocked() && b.isOwned()) {
+        for (const auto& b : player.accessBusinesses())
+            if (b.hasManagerUnlocked() && b.isOwned())
                 player.addMoney(b.getProfitPerCycle());
-            }
-        }
     }
 }
 
@@ -120,11 +117,9 @@ void Game::interactiveUpgrade() {
                 totalCost += currentCost;
                 b.levelUp();
                 if (b.hasManagerUnlocked()) {
-                    b.modifyProfit(1.03);      // +3% profit
-                    b.modifyUpgradeCost(0.9);  // -10% cost upgrade
-                } else {
-                    b.increaseUpgradeCost(1.5);
-                }
+                    b.modifyProfit(1.03);
+                    b.modifyUpgradeCost(0.9);
+                } else b.increaseUpgradeCost(1.5);
                 upgradesDone++;
                 currentCost = b.getUpgradeCost();
             } else break;
@@ -134,15 +129,13 @@ void Game::interactiveUpgrade() {
             player.spendMoney(totalCost);
             std::cout << "Ai facut " << upgradesDone << " upgrade-uri la " << b.getName()
                       << " pentru " << static_cast<int>(totalCost) << "$!\n";
+            std::cout << "Bani ramasi: " << static_cast<int>(player.getMoney()) << "$\n";
         } else std::cout << "Nu ai avut bani pentru niciun upgrade.\n";
-
-        for (const auto& biz : player.accessBusinesses())
-            if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
     }
 }
 
 void Game::buyBusiness() {
-    const auto& businesses = player.accessBusinesses();
+    auto& businesses = player.accessBusinesses();
 
     while (true) {
         std::cout << "\n=== CUMPARA BUSINESS ===\n";
@@ -170,10 +163,10 @@ void Game::buyBusiness() {
             continue;
         }
 
+        double before = player.getMoney();
         player.unlockBusiness(idx - 1);
-
-        for (const auto& b : player.accessBusinesses())
-            if (b.hasManagerUnlocked()) player.addMoney(b.getProfitPerCycle());
+        if (player.getMoney() < before)
+            std::cout << "Bani ramasi: " << static_cast<int>(player.getMoney()) << "$\n";
     }
 }
 
@@ -206,17 +199,10 @@ void Game::buyManager() {
             continue;
         }
 
-        Business& b = businesses[idx - 1];
-        if (!b.isOwned()) {
-            std::cout << "Nu poti cumpara manager pentru un business blocat!\n";
-            continue;
-        }
-
-        double& moneyRef = player.accessMoney();
-        b.unlockManager(moneyRef);
-
-        for (const auto& biz : player.accessBusinesses())
-            if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
+        double before = player.getMoney();
+        businesses[idx - 1].unlockManager(player.accessMoney());
+        if (player.getMoney() < before)
+            std::cout << "Bani ramasi: " << static_cast<int>(player.getMoney()) << "$\n";
     }
 }
 
@@ -269,9 +255,7 @@ void Game::upgradeManager() {
         b.modifyProfit(1.03);
         b.modifyUpgradeCost(0.9);
         std::cout << "Managerul de la " << b.getName() << " a fost imbunatatit!\n";
-
-        for (const auto& biz : player.accessBusinesses())
-            if (biz.hasManagerUnlocked()) player.addMoney(biz.getProfitPerCycle());
+        std::cout << "Bani ramasi: " << static_cast<int>(player.getMoney()) << "$\n";
     }
 }
 

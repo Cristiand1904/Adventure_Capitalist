@@ -15,9 +15,9 @@ int main() {
     static_cast<void>(tempAchievement.getDescription());
 
 
-    std::ifstream fin("tastatura.txt");
+    std::ifstream fin("date_intrare.txt");
     if (!fin.is_open()) {
-        fin.open("../tastatura.txt");
+        fin.open("../date_intrare.txt");
     }
 
     if (!fin.is_open()) {
