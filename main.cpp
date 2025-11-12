@@ -21,7 +21,7 @@ int main() {
     }
 
     if (!fin.is_open()) {
-        std::cout << "Eroare: fisierul 'tastatura.txt' nu a putut fi deschis.\n";
+        std::cout << "Eroare: fisierul 'date_intrare.txt' nu a putut fi deschis.\n";
         return 1;
     }
 
