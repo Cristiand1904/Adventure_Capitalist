@@ -60,6 +60,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/Game.cpp
         src/Upgrade.cpp
         src/Achievement.cpp
+        include/Manager.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

@@ -16,9 +16,6 @@ int main() {
 
 
     std::ifstream fin("date_intrare.txt");
-    if (!fin.is_open()) {
-        fin.open("../date_intrare.txt");
-    }
 
     if (!fin.is_open()) {
         std::cout << "Eroare: fisierul 'date_intrare.txt' nu a putut fi deschis.\n";
@@ -43,6 +40,9 @@ int main() {
 
     Game game(p);
     game.start();
+
+    std::cout << "\n\n--- STATUTUL FINAL AL JOCULUI ---\n";
+    std::cout << game;
 
     return 0;
 }

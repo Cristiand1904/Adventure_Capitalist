@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 
 class Achievement {
 private:
@@ -13,4 +14,6 @@ public:
     bool isUnlocked() const;
     const std::string& getDescription() const;
     void unlock();
+
+    friend std::ostream& operator<<(std::ostream& os, const Achievement& ach);
 };

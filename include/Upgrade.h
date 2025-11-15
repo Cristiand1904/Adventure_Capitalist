@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 
 class Upgrade {
 private:
@@ -16,4 +17,6 @@ public:
     bool isPurchased() const;
     double getMultiplier() const;
     double getCost() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Upgrade& u);
 };

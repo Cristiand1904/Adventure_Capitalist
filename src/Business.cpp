@@ -1,4 +1,7 @@
 #include "../include/Business.h"
+#include <iostream>
+#include <memory>
+#include <iomanip>
 
 Business::Business(const std::string& name, double profit, double upgrade, double cost, double manager)
     : name(name),
@@ -98,8 +101,22 @@ double Business::getPurchaseCost() const { return purchaseCost; }
 double Business::getManagerCost() const { return managerCost; }
 
 std::ostream& operator<<(std::ostream& os, const Business& b) {
-    os << b.name << " | Status: " << (b.owned ? "OWNED" : "LOCKED")
-       << " | lvl=" << b.level
-       << " | profit=" << static_cast<int>(b.profitPerCycle);
+    os << std::fixed << std::setprecision(0);
+    os << b.getName() << " (Lvl " << b.getLevel() << ")";
+    os << " | Profit/Ciclu: " << b.getProfitPerCycle() << "$";
+
+    if (b.isOwned()) {
+        os << " | Status: DETINUT";
+        os << " | Cost Upgrade: " << b.getUpgradeCost() << "$";
+        os << " | Manager: " << (b.hasManagerUnlocked() ? "ACTIV" : "INACTIV");
+
+        if (b.managerUpgrade) {
+            os << "\n    -> Manager Upgrade: " << *b.managerUpgrade;
+        }
+    } else {
+        os << " | Status: BLOCAT";
+        os << " | Cost Cumparare: " << b.getPurchaseCost() << "$";
+    }
+
     return os;
 }

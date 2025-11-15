@@ -1,5 +1,7 @@
 #include "../include/Player.h"
 #include <iostream>
+#include <iomanip>
+#include <vector>
 
 Player::Player(const std::string& name, double money)
     : name(name), money(money) {}
@@ -52,6 +54,20 @@ std::vector<Business>& Player::getBusinesses() {
 double& Player::accessMoney() {
     return money;
 }
+
 const std::vector<Business>& Player::getBusinesses() const {
     return businesses;
+}
+
+std::ostream& operator<<(std::ostream& os, const Player& p) {
+    os << std::fixed << std::setprecision(0);
+    os << "=== JUCATOR: " << p.getName() << " ===\n";
+    os << "Bani: " << p.getMoney() << "$\n";
+    os << "\n--- LISTA BUSINESS-URI ---\n";
+
+    for (size_t i = 0; i < p.getBusinesses().size(); ++i) {
+        os << "[" << (i + 1) << "] " << p.getBusinesses()[i] << "\n";
+    }
+
+    return os;
 }

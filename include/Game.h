@@ -18,4 +18,6 @@ public:
     void buyManager();
     void upgradeManager();
     void start();
+
+    friend std::ostream& operator<<(std::ostream& os, const Game& game);
 };

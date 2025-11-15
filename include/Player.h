@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <iostream>
 #include "Business.h"
 
 class Player {
@@ -23,7 +24,9 @@ public:
 
     std::vector<Business>& accessBusinesses();
     std::vector<Business>& getBusinesses();
-    const std::vector<Business>& getBusinesses() const; // ✅ adăugat pentru metode const
+    const std::vector<Business>& getBusinesses() const;
 
     double& accessMoney();
+
+    friend std::ostream& operator<<(std::ostream& os, const Player& p);
 };

@@ -264,3 +264,10 @@ void Game::start() {
               << player.getName() << "! ===\n";
     interactiveMenu();
 }
+
+std::ostream& operator<<(std::ostream& os, const Game& game) {
+    os << "\n=== REZUMAT STARE JOC ===\n";
+    os << game.player;
+    os << "==========================\n";
+    return os;
+}
