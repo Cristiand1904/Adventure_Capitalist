@@ -1,9 +1,7 @@
 #include "../include/Business.h"
 #include <iostream>
 #include <iomanip>
-#include <utility> // Inca necesar pentru std::swap in alte contexte, dar nu pentru operator=
-
-int Business::totalBusinessesActive = 0;
+#include <utility>
 
 Business::Business(const std::string& name, double profit, double upgrade, double cost)
     : name(name),
@@ -12,9 +10,7 @@ Business::Business(const std::string& name, double profit, double upgrade, doubl
       purchaseCost(cost),
       level(0),
       owned(false),
-      manager(nullptr) {
-    totalBusinessesActive++;
-}
+      manager(nullptr) {}
 
 Business::Business(const Business& other)
     : name(other.name),
@@ -29,14 +25,8 @@ Business::Business(const Business& other)
     } else {
         manager = nullptr;
     }
-    totalBusinessesActive++;
 }
 
-Business::~Business() {
-    totalBusinessesActive--;
-}
-
-// Implementare clasica a operatorului de atribuire
 Business& Business::operator=(const Business& other) {
     if (this == &other) {
         return *this;
@@ -55,19 +45,6 @@ Business& Business::operator=(const Business& other) {
     }
     return *this;
 }
-
-// Functia swap nu mai este friend si nu mai este necesara aici
-// void swap(Business& first, Business& second) noexcept {
-//     using std::swap;
-//     swap(first.name, second.name);
-//     swap(first.profitPerCycle, second.profitPerCycle);
-//     swap(first.upgradeCost, second.upgradeCost);
-//     swap(first.purchaseCost, second.purchaseCost);
-//     swap(first.level, second.level);
-//     swap(first.owned, second.owned);
-//     swap(first.manager, second.manager);
-//     swap(first.upgrades, second.upgrades);
-// }
 
 void Business::levelUp() {
     level++;
@@ -94,10 +71,6 @@ double Business::getUpgradeCost() const { return upgradeCost; }
 double Business::getPurchaseCost() const { return purchaseCost; }
 double Business::getManagerCost() const {
     return purchaseCost * 2;
-}
-
-int Business::getTotalBusinessesActive() {
-    return totalBusinessesActive;
 }
 
 void Business::display(std::ostream& os) const {

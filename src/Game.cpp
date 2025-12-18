@@ -23,23 +23,18 @@ void Game::run() {
 }
 
 void Game::displayGameInfo() const {
-    // Simplificam pentru a depana eroarea de stack-overflow
-    std::cout << "\n======================================\n";
-    std::cout << "[Jucator] " << player.getName()
-              << " | Bani: " << std::fixed << std::setprecision(0) << player.getMoney() << "$\n";
-
-    // Comentam temporar partea cu count_if si static pentru a izola problema
-    /*
     const auto& businesses = player.getBusinesses();
+
     long ownedCount = std::count_if(businesses.begin(), businesses.end(),
         [](const std::unique_ptr<Business>& b) {
             return b->isOwned();
         }
     );
-    std::cout << "Afaceri detinute: " << ownedCount << "/" << businesses.size() << "\n";
-    std::cout << "Afaceri active in joc: " << Business::getTotalBusinessesActive() << "\n";
-    */
 
+    std::cout << "\n======================================\n";
+    std::cout << "[Jucator] " << player.getName()
+              << " | Bani: " << std::fixed << std::setprecision(0) << player.getMoney() << "$\n";
+    std::cout << "Afaceri detinute: " << ownedCount << "/" << businesses.size() << "\n";
     std::cout << "======================================\n";
     player.displayBusinesses();
     std::cout << "======================================\n";

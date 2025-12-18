@@ -7,9 +7,6 @@
 #include "Upgrade.h"
 
 class Business {
-private:
-    static int totalBusinessesActive;
-
 protected:
     std::string name;
     double profitPerCycle;
@@ -30,7 +27,7 @@ public:
     Business(Business&&) noexcept = default;
     Business& operator=(Business&&) noexcept = default;
 
-    virtual ~Business();
+    virtual ~Business() = default;
 
     virtual double calculateRevenue(double bonusMultiplier) const = 0;
     virtual std::unique_ptr<Business> clone() const = 0;
@@ -49,8 +46,6 @@ public:
     double getUpgradeCost() const;
     double getPurchaseCost() const;
     double getManagerCost() const;
-
-    static int getTotalBusinessesActive();
 
     friend void swap(Business& first, Business& second) noexcept;
     friend std::ostream& operator<<(std::ostream& os, const Business& b);
