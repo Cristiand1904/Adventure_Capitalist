@@ -2,6 +2,9 @@
 #include <iostream>
 #include <iomanip>
 
+Upgrade::Upgrade(double c, double m)
+    : cost(c), multiplier(m), purchased(false) {}
+
 bool Upgrade::canPurchase(double money) const {
     return money >= cost;
 }

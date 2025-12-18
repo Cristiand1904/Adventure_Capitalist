@@ -8,8 +8,7 @@ private:
     bool unlocked;
 
 public:
-    explicit Achievement(const std::string& desc = "")
-        : description(desc), unlocked(false) {}
+    explicit Achievement(const std::string& desc = "");
 
     bool isUnlocked() const;
     const std::string& getDescription() const;

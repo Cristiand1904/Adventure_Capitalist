@@ -1,32 +1,36 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <iostream>
+#include <memory>
 #include "Business.h"
+#include "Wallet.h"
 
 class Player {
 private:
     std::string name;
-    double money;
-    std::vector<Business> businesses;
+    Wallet wallet;
+    std::vector<std::unique_ptr<Business>> businesses;
 
 public:
     Player(const std::string& name, double money);
 
+    Player(const Player& other);
+    Player& operator=(Player other);
+    Player(Player&&) noexcept = default;
+    Player& operator=(Player&&) noexcept = default;
+
+    void addBusiness(std::unique_ptr<Business> business);
+
     const std::string& getName() const;
     double getMoney() const;
-
-    void spendMoney(double amount);
-    void addMoney(double amount);
+    const std::vector<std::unique_ptr<Business>>& getBusinesses() const;
 
     void earnProfit();
-    void unlockBusiness(int index);
+    void displayBusinesses() const;
 
-    std::vector<Business>& accessBusinesses();
-    std::vector<Business>& getBusinesses();
-    const std::vector<Business>& getBusinesses() const;
+    void purchaseBusiness(int index);
+    void upgradeBusiness(int index);
+    void hireManager(int index);
 
-    double& accessMoney();
-
-    friend std::ostream& operator<<(std::ostream& os, const Player& p);
+    friend void swap(Player& first, Player& second) noexcept;
 };

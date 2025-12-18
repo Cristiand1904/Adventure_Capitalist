@@ -1,0 +1,14 @@
+#pragma once
+#include "Business.h"
+
+class Restaurant : public Business {
+protected:
+    void print(std::ostream& os) const override;
+
+public:
+    Restaurant();
+    Restaurant(const std::string& name, double profit, double upgrade, double cost);
+
+    double calculateRevenue(double bonusMultiplier) const override;
+    std::unique_ptr<Business> clone() const override;
+};

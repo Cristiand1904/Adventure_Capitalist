@@ -3,21 +3,23 @@
 #include <vector>
 #include "Player.h"
 #include "Business.h"
+#include "LemonadeStand.h"
+#include "Restaurant.h"
+#include "IceCreamShop.h"
 
 class Game {
 private:
     Player player;
+    void setupBusinesses();
 
 public:
-    explicit Game(const Player& p);
+    Game(const std::string& playerName, double initialMoney);
 
-    void displayBusinesses() const;
-    void interactiveMenu();
-    void interactiveUpgrade();
-    void buyBusiness();
-    void buyManager();
-    void upgradeManager();
-    void start();
+    void run();
 
-    friend std::ostream& operator<<(std::ostream& os, const Game& game);
+private:
+    void displayGameInfo() const;
+    void mainLoop();
+    void handlePlayerInput();
+    void analyzeBusinesses() const;
 };

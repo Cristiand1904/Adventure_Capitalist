@@ -1,6 +1,9 @@
 #include "../include/Achievement.h"
 #include <iostream>
 
+Achievement::Achievement(const std::string& desc)
+    : description(desc), unlocked(false) {}
+
 bool Achievement::isUnlocked() const {
     return unlocked;
 }

@@ -1,122 +1,109 @@
 #include "../include/Business.h"
 #include <iostream>
-#include <memory>
 #include <iomanip>
+#include <utility>
 
-Business::Business(const std::string& name, double profit, double upgrade, double cost, double manager)
+int Business::totalBusinessesActive = 0;
+
+Business::Business(const std::string& name, double profit, double upgrade, double cost)
     : name(name),
       profitPerCycle(profit),
       upgradeCost(upgrade),
       purchaseCost(cost),
-      managerCost(manager),
       level(0),
       owned(false),
-      hasManager(false),
-      managerUpgrade(nullptr) {}
+      manager(nullptr) {
+    totalBusinessesActive++;
+}
 
 Business::Business(const Business& other)
     : name(other.name),
       profitPerCycle(other.profitPerCycle),
       upgradeCost(other.upgradeCost),
       purchaseCost(other.purchaseCost),
-      managerCost(other.managerCost),
       level(other.level),
       owned(other.owned),
-      hasManager(other.hasManager) {
-    if (other.managerUpgrade)
-        managerUpgrade = std::make_unique<Upgrade>(*other.managerUpgrade);
+      upgrades(other.upgrades) {
+    if (other.manager) {
+        manager = std::make_unique<Manager>(*other.manager);
+    } else {
+        manager = nullptr;
+    }
+    totalBusinessesActive++;
 }
 
-Business& Business::operator=(const Business& other) {
-    if (this != &other) {
-        name = other.name;
-        profitPerCycle = other.profitPerCycle;
-        upgradeCost = other.upgradeCost;
-        purchaseCost = other.purchaseCost;
-        managerCost = other.managerCost;
-        level = other.level;
-        owned = other.owned;
-        hasManager = other.hasManager;
-        managerUpgrade = other.managerUpgrade
-            ? std::make_unique<Upgrade>(*other.managerUpgrade)
-            : nullptr;
-    }
+Business::~Business() {
+    totalBusinessesActive--;
+}
+
+void swap(Business& first, Business& second) noexcept {
+    using std::swap;
+    swap(first.name, second.name);
+    swap(first.profitPerCycle, second.profitPerCycle);
+    swap(first.upgradeCost, second.upgradeCost);
+    swap(first.purchaseCost, second.purchaseCost);
+    swap(first.level, second.level);
+    swap(first.owned, second.owned);
+    swap(first.manager, second.manager);
+    swap(first.upgrades, second.upgrades);
+}
+
+Business& Business::operator=(Business other) {
+    swap(*this, other);
     return *this;
 }
 
 void Business::levelUp() {
     level++;
     profitPerCycle += 10 * level;
-    if (managerUpgrade && managerUpgrade->isPurchased())
-        profitPerCycle *= managerUpgrade->getMultiplier();
 }
 
-void Business::increaseUpgradeCost(double factor) {
-    upgradeCost *= factor;
+void Business::unlock() {
+    owned = true;
+    level = 1;
+    std::cout << "Ai cumparat " << name << "!\n";
 }
 
-void Business::unlock(double& money) {
-    if (!owned && money >= purchaseCost) {
-        money -= purchaseCost;
-        owned = true;
-        std::cout << "Ai cumparat " << name << "!\n";
-    } else if (owned) {
-        std::cout << "Business-ul " << name << " este deja detinut.\n";
-    } else {
-        std::cout << "Nu ai destui bani pentru " << name << ".\n";
-    }
-}
-
-void Business::unlockManager(double& money) {
-    if (!hasManager && money >= managerCost) {
-        money -= managerCost;
-        hasManager = true;
-        std::cout << "Manager cumparat pentru " << name << "!\n";
-
-        if (!managerUpgrade)
-            managerUpgrade = std::make_unique<Upgrade>(managerCost * 0.5, 1.03);
-        managerUpgrade->purchase();
-    } else if (hasManager) {
-        std::cout << "Managerul pentru " << name << " este deja activ.\n";
-    } else {
-        std::cout << "Nu ai destui bani pentru managerul " << name << ".\n";
-    }
-}
-
-void Business::modifyProfit(double factor) {
-    profitPerCycle *= factor;
-}
-
-void Business::modifyUpgradeCost(double factor) {
-    upgradeCost *= factor;
+void Business::hireManager() {
+    manager = std::make_unique<Manager>(name + " Manager", getManagerCost());
+    std::cout << "Manager angajat pentru " << name << "!\n";
 }
 
 bool Business::isOwned() const { return owned; }
-bool Business::hasManagerUnlocked() const { return hasManager; }
+bool Business::hasManagerHired() const { return manager != nullptr; }
 const std::string& Business::getName() const { return name; }
 int Business::getLevel() const { return level; }
 double Business::getProfitPerCycle() const { return profitPerCycle; }
 double Business::getUpgradeCost() const { return upgradeCost; }
 double Business::getPurchaseCost() const { return purchaseCost; }
-double Business::getManagerCost() const { return managerCost; }
+double Business::getManagerCost() const {
+    return purchaseCost * 2;
+}
 
-std::ostream& operator<<(std::ostream& os, const Business& b) {
+int Business::getTotalBusinessesActive() {
+    return totalBusinessesActive;
+}
+
+void Business::display(std::ostream& os) const {
+    print(os);
+}
+
+void Business::print(std::ostream& os) const {
     os << std::fixed << std::setprecision(0);
-    os << b.getName() << " (Lvl " << b.getLevel() << ")";
-    os << " | Profit/Ciclu: " << b.getProfitPerCycle() << "$";
+    os << getName() << " (Lvl " << getLevel() << ")";
+    os << " | Profit/Ciclu: " << getProfitPerCycle() << "$";
 
-    if (b.isOwned()) {
+    if (isOwned()) {
         os << " | Status: DETINUT";
-        os << " | Cost Upgrade: " << b.getUpgradeCost() << "$";
-        os << " | Manager: " << (b.hasManagerUnlocked() ? "ACTIV" : "INACTIV");
-
-        if (b.managerUpgrade) {
-            os << "\n    -> Manager Upgrade: " << *b.managerUpgrade;
-        }
+        os << " | Cost Upgrade: " << getUpgradeCost() << "$";
+        os << " | Manager: " << (hasManagerHired() ? "ANGAJAT" : "NEANGAJAT");
     } else {
         os << " | Status: BLOCAT";
-        os << " | Cost Cumparare: " << b.getPurchaseCost() << "$";
+        os << " | Cost Cumparare: " << getPurchaseCost() << "$";
     }
+}
 
+std::ostream& operator<<(std::ostream& os, const Business& b) {
+    b.display(os);
     return os;
 }
