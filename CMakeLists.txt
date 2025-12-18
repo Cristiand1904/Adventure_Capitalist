@@ -55,12 +55,22 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         include/Game.h
         include/Upgrade.h
         include/Achievement.h
+        include/Manager.h
+        include/Wallet.h
+        include/LemonadeStand.h
+        include/Restaurant.h
+        include/IceCreamShop.h
+        include/Exceptions.h
         src/Business.cpp
         src/Player.cpp
         src/Game.cpp
         src/Upgrade.cpp
         src/Achievement.cpp
-        include/Manager.h
+        src/Manager.cpp
+        src/Wallet.cpp
+        src/LemonadeStand.cpp
+        src/Restaurant.cpp
+        src/IceCreamShop.cpp
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )
