@@ -26,7 +26,7 @@ public:
     Business(const std::string& name, double profit, double upgrade, double cost);
 
     Business(const Business& other);
-    Business& operator=(Business other);
+    Business& operator=(const Business& other);
     Business(Business&&) noexcept = default;
     Business& operator=(Business&&) noexcept = default;
 

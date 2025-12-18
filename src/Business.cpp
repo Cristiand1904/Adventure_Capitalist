@@ -1,7 +1,7 @@
 #include "../include/Business.h"
 #include <iostream>
 #include <iomanip>
-#include <utility>
+#include <utility> // Inca necesar pentru std::swap in alte contexte, dar nu pentru operator=
 
 int Business::totalBusinessesActive = 0;
 
@@ -36,22 +36,38 @@ Business::~Business() {
     totalBusinessesActive--;
 }
 
-void swap(Business& first, Business& second) noexcept {
-    using std::swap;
-    swap(first.name, second.name);
-    swap(first.profitPerCycle, second.profitPerCycle);
-    swap(first.upgradeCost, second.upgradeCost);
-    swap(first.purchaseCost, second.purchaseCost);
-    swap(first.level, second.level);
-    swap(first.owned, second.owned);
-    swap(first.manager, second.manager);
-    swap(first.upgrades, second.upgrades);
-}
-
-Business& Business::operator=(Business other) {
-    swap(*this, other);
+// Implementare clasica a operatorului de atribuire
+Business& Business::operator=(const Business& other) {
+    if (this == &other) {
+        return *this;
+    }
+    name = other.name;
+    profitPerCycle = other.profitPerCycle;
+    upgradeCost = other.upgradeCost;
+    purchaseCost = other.purchaseCost;
+    level = other.level;
+    owned = other.owned;
+    upgrades = other.upgrades;
+    if (other.manager) {
+        manager = std::make_unique<Manager>(*other.manager);
+    } else {
+        manager = nullptr;
+    }
     return *this;
 }
+
+// Functia swap nu mai este friend si nu mai este necesara aici
+// void swap(Business& first, Business& second) noexcept {
+//     using std::swap;
+//     swap(first.name, second.name);
+//     swap(first.profitPerCycle, second.profitPerCycle);
+//     swap(first.upgradeCost, second.upgradeCost);
+//     swap(first.purchaseCost, second.purchaseCost);
+//     swap(first.level, second.level);
+//     swap(first.owned, second.owned);
+//     swap(first.manager, second.manager);
+//     swap(first.upgrades, second.upgrades);
+// }
 
 void Business::levelUp() {
     level++;

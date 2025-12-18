@@ -53,9 +53,10 @@ void Player::displayBusinesses() const {
     }
 }
 
-void Player::purchaseBusiness(int index) {
-    if (index < 0 || index >= businesses.size()) {
-        throw InvalidBusinessIndexException(index + 1);
+void Player::purchaseBusiness(int index_int) {
+    size_t index = static_cast<size_t>(index_int);
+    if (index >= businesses.size()) {
+        throw InvalidBusinessIndexException(index_int + 1);
     }
     const auto& business = businesses[index];
     if (business->isOwned()) {
@@ -66,9 +67,10 @@ void Player::purchaseBusiness(int index) {
     business->unlock();
 }
 
-void Player::upgradeBusiness(int index) {
-    if (index < 0 || index >= businesses.size()) {
-        throw InvalidBusinessIndexException(index + 1);
+void Player::upgradeBusiness(int index_int) {
+    size_t index = static_cast<size_t>(index_int);
+    if (index >= businesses.size()) {
+        throw InvalidBusinessIndexException(index_int + 1);
     }
     const auto& business = businesses[index];
     if (!business->isOwned()) {
@@ -79,9 +81,10 @@ void Player::upgradeBusiness(int index) {
     business->levelUp();
 }
 
-void Player::hireManager(int index) {
-    if (index < 0 || index >= businesses.size()) {
-        throw InvalidBusinessIndexException(index + 1);
+void Player::hireManager(int index_int) {
+    size_t index = static_cast<size_t>(index_int);
+    if (index >= businesses.size()) {
+        throw InvalidBusinessIndexException(index_int + 1);
     }
     const auto& business = businesses[index];
     if (!business->isOwned()) {
