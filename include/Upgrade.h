@@ -11,9 +11,10 @@ private:
 public:
     explicit Upgrade(double c = 0, double m = 1.0);
 
-    bool canPurchase(double money) const;
-    void purchase();
-    bool isPurchased() const;
+    // Metodele nefolosite au fost eliminate pentru a evita avertismentele
+    // bool canPurchase(double money) const;
+    // void purchase();
+    bool isPurchased() const; // Folosit in operator<<
     double getMultiplier() const;
     double getCost() const;
 
