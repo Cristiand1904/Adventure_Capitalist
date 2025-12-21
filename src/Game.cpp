@@ -45,11 +45,11 @@ void Game::analyzeBusinesses() const {
     for (const auto& business_ptr : player.getBusinesses()) {
         if (!business_ptr->isOwned()) continue;
 
-        if (auto* lemonade = dynamic_cast<LemonadeStand*>(business_ptr.get())) {
+        if (const auto* lemonade = dynamic_cast<LemonadeStand*>(business_ptr.get())) {
             std::cout << "Sfat pentru '" << lemonade->getName() << "': Limonada se vinde excelent in zilele toride de vara!\n";
-        } else if (auto* iceCream = dynamic_cast<IceCreamShop*>(business_ptr.get())) {
+        } else if (const auto* iceCream = dynamic_cast<IceCreamShop*>(business_ptr.get())) {
             std::cout << "Sfat pentru '" << iceCream->getName() << "': Ofera noi arome pentru a atrage mai multi clienti!\n";
-        } else if (auto* restaurant = dynamic_cast<Restaurant*>(business_ptr.get())) {
+        } else if (const auto* restaurant = dynamic_cast<Restaurant*>(business_ptr.get())) {
             std::cout << "Sfat pentru '" << restaurant->getName() << "': O locatie buna este cheia succesului in acest domeniu!\n";
         }
     }
