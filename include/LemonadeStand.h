@@ -7,7 +7,8 @@ protected:
 
 public:
     LemonadeStand();
-    LemonadeStand(const std::string& name, double profit, double upgrade, double cost);
+    // Adaugam parametrul time
+    LemonadeStand(const std::string& name, double profit, double upgrade, double cost, double time);
 
     double calculateRevenue(double bonusMultiplier) const override;
     std::unique_ptr<Business> clone() const override;

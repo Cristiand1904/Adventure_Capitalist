@@ -9,13 +9,12 @@ class Application {
 private:
     std::unique_ptr<Game> game;
 
-    // Structura simpla pentru butoane
     struct Button {
         Rectangle rect;
         std::string text;
         Color color;
-        int businessIndex; // -1 pentru butoane generale
-        enum Type { BUY, UPGRADE, MANAGER, PROFIT } type;
+        int businessIndex;
+        enum Type { BUY, UPGRADE, MANAGER, START } type; // Am adaugat START
     };
     std::vector<Button> buttons;
 

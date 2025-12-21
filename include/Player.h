@@ -25,7 +25,12 @@ public:
     double getMoney() const;
     const std::vector<std::unique_ptr<Business>>& getBusinesses() const;
 
-    void earnProfit();
+    // Actualizeaza starea afacerilor si colecteaza profitul
+    void update(double deltaTime);
+
+    // Porneste productia manuala pentru o afacere
+    void startBusinessProduction(int index);
+
     void displayBusinesses() const;
 
     void purchaseBusiness(int index);

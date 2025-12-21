@@ -2,15 +2,19 @@
 #include <iostream>
 #include <iomanip>
 #include <utility>
+#include <cmath>
 
-Business::Business(const std::string& name, double profit, double upgrade, double cost)
+Business::Business(const std::string& name, double profit, double upgrade, double cost, double time)
     : name(name),
       profitPerCycle(profit),
       upgradeCost(upgrade),
       purchaseCost(cost),
       level(0),
       owned(false),
-      manager(nullptr) {}
+      manager(nullptr),
+      productionTime(time),
+      currentTimer(0.0),
+      isProducing(false) {}
 
 Business::Business(const Business& other)
     : name(other.name),
@@ -19,7 +23,10 @@ Business::Business(const Business& other)
       purchaseCost(other.purchaseCost),
       level(other.level),
       owned(other.owned),
-      upgrades(other.upgrades) {
+      upgrades(other.upgrades),
+      productionTime(other.productionTime),
+      currentTimer(other.currentTimer),
+      isProducing(other.isProducing) {
     if (other.manager) {
         manager = std::make_unique<Manager>(*other.manager);
     } else {
@@ -38,6 +45,9 @@ Business& Business::operator=(const Business& other) {
     level = other.level;
     owned = other.owned;
     upgrades = other.upgrades;
+    productionTime = other.productionTime;
+    currentTimer = other.currentTimer;
+    isProducing = other.isProducing;
     if (other.manager) {
         manager = std::make_unique<Manager>(*other.manager);
     } else {
@@ -46,19 +56,59 @@ Business& Business::operator=(const Business& other) {
     return *this;
 }
 
+double Business::update(double deltaTime) {
+    if (!owned) return 0.0;
+
+    if (hasManagerHired() && !isProducing) {
+        isProducing = true;
+    }
+
+    if (isProducing) {
+        currentTimer += deltaTime;
+        if (currentTimer >= productionTime) {
+            currentTimer = 0.0;
+            if (!hasManagerHired()) {
+                isProducing = false;
+            }
+            // Returnam profitul ca intreg (rotunjit in jos)
+            return std::floor(profitPerCycle);
+        }
+    }
+    return 0.0;
+}
+
+void Business::startProduction() {
+    if (owned && !isProducing) {
+        isProducing = true;
+    }
+}
+
 void Business::levelUp() {
     level++;
-    profitPerCycle += 10 * level;
+
+    double profitFactor = 1.15;
+    if (level > 50) {
+        profitFactor = 1.05;
+    }
+    profitPerCycle *= profitFactor;
+
+    upgradeCost *= 1.15;
+
+    if (level % 25 == 0) {
+        productionTime /= 2.0;
+    }
 }
 
 void Business::unlock() {
     owned = true;
     level = 1;
+    isProducing = false;
     std::cout << "Ai cumparat " << name << "!\n";
 }
 
 void Business::hireManager() {
     manager = std::make_unique<Manager>(name + " Manager", getManagerCost());
+    isProducing = true;
     std::cout << "Manager angajat pentru " << name << "!\n";
 }
 
@@ -70,8 +120,21 @@ double Business::getProfitPerCycle() const { return profitPerCycle; }
 double Business::getUpgradeCost() const { return upgradeCost; }
 double Business::getPurchaseCost() const { return purchaseCost; }
 double Business::getManagerCost() const {
-    return purchaseCost * 2;
+    return purchaseCost * 10;
 }
+
+double Business::getProgress() const {
+    if (!isProducing) return 0.0;
+
+    if (currentTimer >= productionTime - 0.1) {
+        return 1.0;
+    }
+
+    return std::min(1.0, currentTimer / productionTime);
+}
+
+double Business::getProductionTime() const { return productionTime; }
+bool Business::isActive() const { return isProducing; }
 
 void Business::display(std::ostream& os) const {
     print(os);
@@ -80,16 +143,8 @@ void Business::display(std::ostream& os) const {
 void Business::print(std::ostream& os) const {
     os << std::fixed << std::setprecision(0);
     os << getName() << " (Lvl " << getLevel() << ")";
-    os << " | Profit/Ciclu: " << getProfitPerCycle() << "$";
-
-    if (isOwned()) {
-        os << " | Status: DETINUT";
-        os << " | Cost Upgrade: " << getUpgradeCost() << "$";
-        os << " | Manager: " << (hasManagerHired() ? "ANGAJAT" : "NEANGAJAT");
-    } else {
-        os << " | Status: BLOCAT";
-        os << " | Cost Cumparare: " << getPurchaseCost() << "$";
-    }
+    os << " | Profit: " << getProfitPerCycle() << "$";
+    os << " | Timp: " << std::setprecision(1) << productionTime << "s";
 }
 
 std::ostream& operator<<(std::ostream& os, const Business& b) {

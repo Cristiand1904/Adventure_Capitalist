@@ -35,22 +35,26 @@ const std::string& Player::getName() const { return name; }
 double Player::getMoney() const { return wallet.getMoney(); }
 const std::vector<std::unique_ptr<Business>>& Player::getBusinesses() const { return businesses; }
 
-void Player::earnProfit() {
-    const double bonusMultiplier = 1.2;
+void Player::update(double deltaTime) {
     double totalProfit = 0;
     for (const auto& b : businesses) {
         if (b->isOwned()) {
-            totalProfit += b->calculateRevenue(bonusMultiplier);
+            totalProfit += b->update(deltaTime);
         }
     }
-    wallet.addMoney(totalProfit);
+    if (totalProfit > 0) {
+        wallet.addMoney(totalProfit);
+    }
+}
+
+void Player::startBusinessProduction(int index) {
+    if (index >= 0 && static_cast<size_t>(index) < businesses.size()) {
+        businesses[index]->startProduction();
+    }
 }
 
 void Player::displayBusinesses() const {
-    std::cout << "\n--- LISTA BUSINESS-URI ---\n";
-    for (size_t i = 0; i < businesses.size(); ++i) {
-        std::cout << "[" << (i + 1) << "] " << *businesses[i] << "\n";
-    }
+    // ... (pastram pentru debug, dar nu e folosit in GUI)
 }
 
 void Player::purchaseBusiness(int index_int) {

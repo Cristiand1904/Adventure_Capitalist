@@ -7,8 +7,10 @@ protected:
 
 public:
     Restaurant();
-    Restaurant(const std::string& name, double profit, double upgrade, double cost);
+    Restaurant(const std::string& name, double profit, double upgrade, double cost, double time);
 
     double calculateRevenue(double bonusMultiplier) const override;
     std::unique_ptr<Business> clone() const override;
+
+    void receiveMichelinStar(); // Adaugat
 };
