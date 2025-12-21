@@ -4,23 +4,40 @@
 #include <utility>
 #include <cmath>
 
-Business::Business(const std::string& name, double profit, double upgrade, double cost, double time)
+Business::Business(const std::string& name, double profit, double upgrade, double cost, double time, double mngCost)
     : name(name),
       profitPerCycle(profit),
       upgradeCost(upgrade),
       purchaseCost(cost),
+      managerBaseCost(mngCost),
       level(0),
       owned(false),
       manager(nullptr),
       productionTime(time),
       currentTimer(0.0),
-      isProducing(false) {}
+      isProducing(false) {
+
+    // Daca nu e specificat costul managerului, il calculam
+    if (managerBaseCost <= 0) {
+        if (purchaseCost > 0) {
+            managerBaseCost = purchaseCost * 10;
+        } else {
+            managerBaseCost = 100.0; // Minim 100$ daca business-ul e gratis
+        }
+    }
+
+    // Asiguram ca upgradeCost nu e 0
+    if (upgradeCost <= 0) {
+        upgradeCost = 10.0;
+    }
+}
 
 Business::Business(const Business& other)
     : name(other.name),
       profitPerCycle(other.profitPerCycle),
       upgradeCost(other.upgradeCost),
       purchaseCost(other.purchaseCost),
+      managerBaseCost(other.managerBaseCost),
       level(other.level),
       owned(other.owned),
       upgrades(other.upgrades),
@@ -42,6 +59,7 @@ Business& Business::operator=(const Business& other) {
     profitPerCycle = other.profitPerCycle;
     upgradeCost = other.upgradeCost;
     purchaseCost = other.purchaseCost;
+    managerBaseCost = other.managerBaseCost;
     level = other.level;
     owned = other.owned;
     upgrades = other.upgrades;
@@ -128,13 +146,13 @@ double Business::getUpgradeCost() const {
     if (manager) {
         cost *= manager->getDiscountFactor();
     }
-    return std::floor(cost); // Returnam intreg
+    return std::floor(cost);
 }
 
 double Business::getPurchaseCost() const { return std::floor(purchaseCost); }
 
 double Business::getManagerCost() const {
-    return std::floor(purchaseCost * 10);
+    return std::floor(managerBaseCost);
 }
 
 double Business::getManagerUpgradeCost() const {

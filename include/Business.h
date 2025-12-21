@@ -12,6 +12,7 @@ protected:
     double profitPerCycle;
     double upgradeCost;
     double purchaseCost;
+    double managerBaseCost; // Costul de baza al managerului
     int level;
     bool owned;
     std::unique_ptr<Manager> manager;
@@ -24,7 +25,7 @@ protected:
     virtual void print(std::ostream& os) const;
 
 public:
-    Business(const std::string& name, double profit, double upgrade, double cost, double time);
+    Business(const std::string& name, double profit, double upgrade, double cost, double time, double mngCost = 0);
 
     Business(const Business& other);
     Business& operator=(const Business& other);
@@ -44,7 +45,7 @@ public:
     void levelUp();
     void unlock();
     void hireManager();
-    void upgradeManager(); // Metoda noua
+    void upgradeManager();
 
     bool isOwned() const;
     bool hasManagerHired() const;
@@ -54,7 +55,7 @@ public:
     double getUpgradeCost() const;
     double getPurchaseCost() const;
     double getManagerCost() const;
-    double getManagerUpgradeCost() const; // Metoda noua
+    double getManagerUpgradeCost() const;
 
     double getProgress() const;
     double getProductionTime() const;
