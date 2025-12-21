@@ -60,4 +60,6 @@ set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE raylib)
 
 install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})
+# Instalam launcher.command pentru a satisface scripturile de CI/CD
+install(FILES launcher.command DESTINATION ${DESTINATION_DIR})
 copy_files(FILES date_intrare.txt COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})

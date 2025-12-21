@@ -1,2 +1,3 @@
-#!/bin/sh
-cd "$(dirname "${0}")" && ./oop
+#!/bin/bash
+# Dummy launcher for macOS compatibility
+./oop
