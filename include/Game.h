@@ -15,7 +15,11 @@ private:
 public:
     Game(const std::string& playerName, double initialMoney);
 
-    void run();
+    void run(); // Pastrat pentru consistenta, dar nefolosit in GUI
+
+    // Getter necesar pentru ca Application sa acceseze starea jocului
+    Player& getPlayer() { return player; }
+    const Player& getPlayer() const { return player; }
 
 private:
     void displayGameInfo() const;
