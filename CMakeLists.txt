@@ -13,7 +13,7 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-# --- RAYLIB SETUP (Folosim master pentru compatibilitate CMake) ---
+# --- RAYLIB SETUP ---
 include(FetchContent)
 FetchContent_Declare(
     raylib
@@ -22,10 +22,10 @@ FetchContent_Declare(
 )
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # Static link
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(raylib)
-# -----------------------------------------------------------
+# --------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
@@ -56,7 +56,6 @@ add_executable(${MAIN_EXECUTABLE_NAME}
 
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
-# Linkam cu raylib
 target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE raylib)
 
 install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})

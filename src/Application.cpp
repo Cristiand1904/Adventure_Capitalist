@@ -4,17 +4,16 @@
 #include <cmath>
 #include <cstdio>
 
-#define COLOR_BG        CLITERAL(Color){ 40, 40, 45, 255 }
-#define COLOR_BAR_BG    CLITERAL(Color){ 20, 20, 20, 255 }
-#define COLOR_BAR_FILL  CLITERAL(Color){ 100, 200, 0, 255 }
-#define COLOR_BTN_BUY   CLITERAL(Color){ 255, 140, 0, 255 }
-#define COLOR_BTN_MNG   CLITERAL(Color){ 100, 100, 255, 255 }
-#define COLOR_ICON_IDLE CLITERAL(Color){ 255, 200, 0, 255 }
-#define COLOR_ICON_RUN  CLITERAL(Color){ 150, 150, 150, 255 }
-#define COLOR_TEXT      CLITERAL(Color){ 240, 240, 240, 255 }
+// Culori
+#define COLOR_BG        CLITERAL(Color){ 30, 30, 35, 255 }
+#define COLOR_PANEL     CLITERAL(Color){ 50, 50, 55, 255 }
+#define COLOR_ACCENT    CLITERAL(Color){ 255, 200, 0, 255 } // Galben auriu
+#define COLOR_GREEN     CLITERAL(Color){ 100, 220, 50, 255 }
+#define COLOR_RED       CLITERAL(Color){ 220, 60, 60, 255 }
+#define COLOR_BLUE      CLITERAL(Color){ 60, 120, 220, 255 }
 
 Application::Application() {
-    InitWindow(900, 700, "Adventure Capitalist - Raylib Edition");
+    InitWindow(1000, 750, "Adventure Capitalist - Ultimate Edition");
     SetTargetFPS(60);
 
     game = std::make_unique<Game>("Capitalist", 0.0);
@@ -23,33 +22,39 @@ Application::Application() {
 
 void Application::initUI() {
     for(int i=0; i<3; ++i) {
-        createBusinessUI(i, 120 + i * 110);
+        createBusinessUI(i, 140 + i * 130);
     }
 }
 
 void Application::createBusinessUI(int index, float yPos) {
+    // START (Cerc)
     Button startBtn;
-    startBtn.rect = { 30, yPos, 80, 80 };
+    startBtn.rect = { 50, yPos, 90, 90 };
     startBtn.text = "GO!";
-    startBtn.color = COLOR_ICON_IDLE;
+    startBtn.color = COLOR_ACCENT;
     startBtn.type = Button::START;
     startBtn.businessIndex = index;
+    startBtn.isPressed = false;
     buttons.push_back(startBtn);
 
+    // BUY
     Button buyBtn;
-    buyBtn.rect = { 680, yPos + 10, 180, 60 };
+    buyBtn.rect = { 750, yPos + 15, 200, 60 };
     buyBtn.text = "BUY";
-    buyBtn.color = COLOR_BTN_BUY;
+    buyBtn.color = COLOR_ACCENT;
     buyBtn.type = Button::UPGRADE;
     buyBtn.businessIndex = index;
+    buyBtn.isPressed = false;
     buttons.push_back(buyBtn);
 
+    // MANAGER
     Button mngBtn;
-    mngBtn.rect = { 620, yPos + 10, 50, 60 };
+    mngBtn.rect = { 680, yPos + 15, 60, 60 };
     mngBtn.text = "M";
-    mngBtn.color = COLOR_BTN_MNG;
+    mngBtn.color = COLOR_BLUE;
     mngBtn.type = Button::MANAGER;
     mngBtn.businessIndex = index;
+    mngBtn.isPressed = false;
     buttons.push_back(mngBtn);
 }
 
@@ -61,19 +66,25 @@ void Application::run() {
     CloseWindow();
 }
 
-bool Application::isButtonClicked(const Button& btn) {
+bool Application::isButtonClicked(Button& btn) {
     Vector2 mousePoint = GetMousePosition();
-    return CheckCollisionPointRec(mousePoint, btn.rect) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+    bool hover = CheckCollisionPointRec(mousePoint, btn.rect);
+
+    if (hover && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+        btn.isPressed = true;
+    } else {
+        btn.isPressed = false;
+    }
+
+    return hover && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
 }
 
 void Application::update() {
-    // Actualizam jocul si primim notificari
     std::vector<std::string> newNotifications = game->update(GetFrameTime());
     for (const auto& msg : newNotifications) {
-        notifications.push_back({msg, 3.0f}); // 3 secunde
+        notifications.push_back({msg, 3.0f});
     }
 
-    // Actualizam timer-ul notificarilor
     if (!notifications.empty()) {
         notifications.front().timer -= GetFrameTime();
         if (notifications.front().timer <= 0) {
@@ -81,8 +92,7 @@ void Application::update() {
         }
     }
 
-    // Input
-    for (const auto& btn : buttons) {
+    for (auto& btn : buttons) {
         if (isButtonClicked(btn)) {
             try {
                 if (btn.type == Button::START) {
@@ -110,7 +120,6 @@ void Application::update() {
         }
     }
 
-    // Update stari butoane
     const auto& businesses = game->getPlayer().getBusinesses();
 
     for (auto& btn : buttons) {
@@ -120,20 +129,20 @@ void Application::update() {
             if (btn.type == Button::UPGRADE) {
                 if (b->isOwned()) {
                     btn.text = "BUY x1\n$" + std::to_string((int)b->getUpgradeCost());
-                    btn.color = COLOR_BTN_BUY;
+                    btn.color = COLOR_ACCENT;
                 } else {
                     if (b->getPurchaseCost() == 0) {
                         btn.text = "FREE!";
-                        btn.color = GREEN;
+                        btn.color = COLOR_GREEN;
                     } else {
                         btn.text = "UNLOCK\n$" + std::to_string((int)b->getPurchaseCost());
-                        btn.color = RED;
+                        btn.color = COLOR_RED;
                     }
                 }
             } else if (btn.type == Button::MANAGER) {
                 if (b->hasManagerHired()) {
                     btn.text = "UPG\n$" + std::to_string((int)b->getManagerUpgradeCost());
-                    btn.color = GREEN;
+                    btn.color = COLOR_GREEN;
                 } else {
                     btn.text = "MNG\n$" + std::to_string((int)b->getManagerCost());
                     btn.color = GRAY;
@@ -142,11 +151,11 @@ void Application::update() {
                 if (!b->isOwned()) {
                     btn.color = GRAY;
                 } else if (b->hasManagerHired()) {
-                    btn.color = GREEN;
+                    btn.color = COLOR_GREEN;
                 } else if (b->isActive()) {
-                    btn.color = COLOR_ICON_RUN;
+                    btn.color = LIGHTGRAY;
                 } else {
-                    btn.color = COLOR_ICON_IDLE;
+                    btn.color = COLOR_ACCENT;
                 }
             }
         }
@@ -157,63 +166,81 @@ void Application::draw() {
     BeginDrawing();
     ClearBackground(COLOR_BG);
 
-    DrawRectangle(0, 0, 900, 80, BLACK);
-    DrawText("AdVenture Capitalist", 20, 20, 30, WHITE);
+    // Header
+    DrawRectangle(0, 0, 1000, 100, BLACK);
+    DrawText("AdVenture Capitalist", 30, 30, 40, WHITE);
 
     std::string moneyStr = "$" + std::to_string((long long)game->getPlayer().getMoney());
-    int moneyWidth = MeasureText(moneyStr.c_str(), 40);
-    DrawText(moneyStr.c_str(), 900 - moneyWidth - 20, 20, 40, YELLOW);
+    int moneyWidth = MeasureText(moneyStr.c_str(), 50);
+    DrawText(moneyStr.c_str(), 1000 - moneyWidth - 30, 25, 50, COLOR_ACCENT);
 
     const auto& businesses = game->getPlayer().getBusinesses();
 
     for (size_t i = 0; i < businesses.size(); ++i) {
-        float yPos = 120 + i * 110;
+        float yPos = 140 + i * 130;
         const auto& b = businesses[i];
 
-        DrawRectangle(10, yPos - 10, 880, 100, DARKGRAY);
+        // Panel
+        DrawRectangleRounded({20, yPos - 10, 960, 110}, 0.1f, 10, COLOR_PANEL);
+        // Eliminat parametrul de grosime care cauza eroarea
+        DrawRectangleRoundedLines({20, yPos - 10, 960, 110}, 0.1f, 10, BLACK);
 
-        float barX = 130;
-        float barY = yPos + 35;
-        float barW = 470;
-        float barH = 30;
+        // Bara Progres
+        float barX = 160;
+        float barY = yPos + 45;
+        float barW = 500;
+        float barH = 35;
 
-        DrawRectangle(barX, barY, barW, barH, COLOR_BAR_BG);
+        DrawRectangle(barX, barY, barW, barH, BLACK);
         if (b->isOwned()) {
             float progress = b->getProgress();
-            DrawRectangle(barX, barY, barW * progress, barH, COLOR_BAR_FILL);
+            DrawRectangle(barX, barY, barW * progress, barH, COLOR_GREEN);
+            if (progress >= 1.0f) {
+                DrawRectangleLinesEx({barX, barY, barW, barH}, 2, WHITE);
+            }
         }
 
+        // Info
         std::string nameLvl = b->getName();
-        if (b->isOwned()) nameLvl += " [" + std::to_string(b->getLevel()) + "]";
-        DrawText(nameLvl.c_str(), barX, yPos, 24, WHITE);
+        if (b->isOwned()) nameLvl += "  [Lv " + std::to_string(b->getLevel()) + "]";
+        DrawText(nameLvl.c_str(), barX, yPos + 5, 30, WHITE);
 
         if (b->isOwned()) {
             std::string profitStr = "$" + std::to_string((int)b->getProfitPerCycle());
-            // Profitul este acum ALB
-            DrawText(profitStr.c_str(), barX, barY + 5, 20, WHITE);
+            DrawText(profitStr.c_str(), barX + 10, barY + 5, 24, WHITE);
 
             char timeBuffer[16];
             snprintf(timeBuffer, sizeof(timeBuffer), "%.1fs", b->getProductionTime());
-            DrawText(timeBuffer, barX + barW - 60, barY + 5, 20, WHITE);
+            DrawText(timeBuffer, barX + barW - 80, barY + 5, 24, WHITE);
         } else {
-            DrawText("LOCKED", barX + 180, barY + 5, 20, RED);
+            DrawText("LOCKED", barX + 200, barY + 5, 24, COLOR_RED);
         }
     }
 
+    // Butoane
     for (const auto& btn : buttons) {
+        Rectangle drawRect = btn.rect;
+        if (btn.isPressed) {
+            drawRect.x += 2;
+            drawRect.y += 2;
+            drawRect.width -= 4;
+            drawRect.height -= 4;
+        }
+
         if (btn.type == Button::START) {
-            Vector2 center = { btn.rect.x + btn.rect.width/2, btn.rect.y + btn.rect.height/2 };
-            DrawCircleV(center, btn.rect.width/2, btn.color);
-            DrawCircleLines(center.x, center.y, btn.rect.width/2, BLACK);
+            Vector2 center = { drawRect.x + drawRect.width/2, drawRect.y + drawRect.height/2 };
+            DrawCircleV(center, drawRect.width/2, btn.color);
+            DrawCircleLines(center.x, center.y, drawRect.width/2, BLACK);
 
             const char* iconText = "Click";
-            if (btn.color.r == GREEN.r) iconText = "Auto";
+            if (btn.color.r == COLOR_GREEN.r) iconText = "Auto";
             int w = MeasureText(iconText, 20);
             DrawText(iconText, center.x - w/2, center.y - 10, 20, BLACK);
         }
         else {
-            DrawRectangleRec(btn.rect, btn.color);
-            DrawRectangleLinesEx(btn.rect, 2, BLACK);
+            DrawRectangleRounded(drawRect, 0.2f, 10, btn.color);
+            // Eliminat parametrul de grosime
+            DrawRectangleRoundedLines(drawRect, 0.2f, 10, BLACK);
 
             if (btn.text.find('\n') != std::string::npos) {
                 size_t pos = btn.text.find('\n');
@@ -223,30 +250,43 @@ void Application::draw() {
                 int w1 = MeasureText(line1.c_str(), 20);
                 int w2 = MeasureText(line2.c_str(), 20);
 
-                DrawText(line1.c_str(), btn.rect.x + btn.rect.width/2 - w1/2, btn.rect.y + 10, 20, WHITE);
-                DrawText(line2.c_str(), btn.rect.x + btn.rect.width/2 - w2/2, btn.rect.y + 35, 20, WHITE);
+                DrawText(line1.c_str(), drawRect.x + drawRect.width/2 - w1/2, drawRect.y + 10, 20, WHITE);
+                DrawText(line2.c_str(), drawRect.x + drawRect.width/2 - w2/2, drawRect.y + 35, 20, WHITE);
             } else {
                 int w = MeasureText(btn.text.c_str(), 20);
                 DrawText(btn.text.c_str(),
-                         btn.rect.x + btn.rect.width/2 - w/2,
-                         btn.rect.y + btn.rect.height/2 - 10,
+                         drawRect.x + drawRect.width/2 - w/2,
+                         drawRect.y + drawRect.height/2 - 10,
                          20, WHITE);
             }
         }
     }
 
-    // Afisare Notificari (Pop-up)
+    // Notificari
     if (!notifications.empty()) {
         const auto& notif = notifications.front();
         int textWidth = MeasureText(notif.text.c_str(), 30);
-        int boxWidth = textWidth + 40;
-        int boxHeight = 100;
-        int boxX = 450 - boxWidth / 2;
-        int boxY = 350 - boxHeight / 2;
+        int boxW = textWidth + 60;
+        int boxH = 120;
+        int boxX = 500 - boxW / 2;
+        int boxY = 375 - boxH / 2;
 
-        DrawRectangle(boxX, boxY, boxWidth, boxHeight, BLACK);
-        DrawRectangleLines(boxX, boxY, boxWidth, boxHeight, YELLOW);
-        DrawText(notif.text.c_str(), boxX + 20, boxY + 35, 30, YELLOW);
+        DrawRectangle(boxX, boxY, boxW, boxH, BLACK);
+        DrawRectangleLinesEx({(float)boxX, (float)boxY, (float)boxW, (float)boxH}, 4, COLOR_ACCENT);
+
+        if (notif.text.find('\n') != std::string::npos) {
+             size_t pos = notif.text.find('\n');
+             std::string line1 = notif.text.substr(0, pos);
+             std::string line2 = notif.text.substr(pos + 1);
+
+             int w1 = MeasureText(line1.c_str(), 30);
+             int w2 = MeasureText(line2.c_str(), 30);
+
+             DrawText(line1.c_str(), boxX + boxW/2 - w1/2, boxY + 20, 30, COLOR_ACCENT);
+             DrawText(line2.c_str(), boxX + boxW/2 - w2/2, boxY + 60, 30, WHITE);
+        } else {
+             DrawText(notif.text.c_str(), boxX + 30, boxY + 45, 30, COLOR_ACCENT);
+        }
     }
 
     EndDrawing();

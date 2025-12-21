@@ -16,6 +16,7 @@ private:
         Color color;
         int businessIndex;
         enum Type { BUY, UPGRADE, MANAGER, START } type;
+        bool isPressed; // Pentru efect vizual
     };
     std::vector<Button> buttons;
 
@@ -29,7 +30,7 @@ private:
     void update();
     void draw();
     void createBusinessUI(int index, float yPos);
-    bool isButtonClicked(const Button& btn);
+    bool isButtonClicked(Button& btn); // Modificat sa ia referinta non-const pentru a seta isPressed
 
 public:
     Application();
