@@ -13,19 +13,17 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-# --- RAYLIB SETUP (Build from source - No linking errors) ---
 include(FetchContent)
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG        master
+    GIT_TAG        5.0
 )
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # Static link
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(raylib)
-# -----------------------------------------------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
@@ -56,10 +54,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
 
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
-# Linkam cu raylib
 target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE raylib)
 
 install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})
-# Instalam launcher.command pentru a satisface scripturile de CI/CD
 install(FILES launcher.command DESTINATION ${DESTINATION_DIR})
 copy_files(FILES date_intrare.txt COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
