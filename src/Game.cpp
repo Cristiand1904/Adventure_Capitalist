@@ -16,6 +16,6 @@ void Game::setupBusinesses() {
     player.addBusiness(std::make_unique<Restaurant>());
 }
 
-void Game::update(double deltaTime) {
-    player.update(deltaTime);
+std::vector<std::string> Game::update(double deltaTime) {
+    return player.update(deltaTime);
 }

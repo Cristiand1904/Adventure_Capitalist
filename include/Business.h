@@ -17,10 +17,9 @@ protected:
     std::unique_ptr<Manager> manager;
     std::vector<Upgrade> upgrades;
 
-    // Noi atribute pentru mecanica de timp
-    double productionTime; // Timpul total necesar pentru un ciclu (secunde)
-    double currentTimer;   // Timpul scurs din ciclul curent
-    bool isProducing;      // Daca afacerea produce in acest moment
+    double productionTime;
+    double currentTimer;
+    bool isProducing;
 
     virtual void print(std::ostream& os) const;
 
@@ -37,11 +36,7 @@ public:
     virtual double calculateRevenue(double bonusMultiplier) const = 0;
     virtual std::unique_ptr<Business> clone() const = 0;
 
-    // Metoda principala de update (apelata in fiecare frame)
-    // Returneaza profitul generat in acest frame (0 daca nu s-a terminat ciclul)
     double update(double deltaTime);
-
-    // Porneste productia manual
     void startProduction();
 
     void display(std::ostream& os) const;
@@ -49,6 +44,7 @@ public:
     void levelUp();
     void unlock();
     void hireManager();
+    void upgradeManager(); // Metoda noua
 
     bool isOwned() const;
     bool hasManagerHired() const;
@@ -58,11 +54,11 @@ public:
     double getUpgradeCost() const;
     double getPurchaseCost() const;
     double getManagerCost() const;
+    double getManagerUpgradeCost() const; // Metoda noua
 
-    // Getteri pentru UI
-    double getProgress() const; // Returneaza 0.0 - 1.0
+    double getProgress() const;
     double getProductionTime() const;
-    bool isActive() const; // Daca produce
+    bool isActive() const;
 
     friend void swap(Business& first, Business& second) noexcept;
     friend std::ostream& operator<<(std::ostream& os, const Business& b);

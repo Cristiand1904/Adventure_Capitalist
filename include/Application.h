@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <deque>
 
 class Application {
 private:
@@ -14,9 +15,15 @@ private:
         std::string text;
         Color color;
         int businessIndex;
-        enum Type { BUY, UPGRADE, MANAGER, START } type; // Am adaugat START
+        enum Type { BUY, UPGRADE, MANAGER, START } type;
     };
     std::vector<Button> buttons;
+
+    struct Notification {
+        std::string text;
+        float timer;
+    };
+    std::deque<Notification> notifications;
 
     void initUI();
     void update();

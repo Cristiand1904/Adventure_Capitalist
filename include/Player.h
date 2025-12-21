@@ -4,12 +4,16 @@
 #include <memory>
 #include "Business.h"
 #include "Wallet.h"
+#include "Achievement.h"
 
 class Player {
 private:
     std::string name;
     Wallet wallet;
     std::vector<std::unique_ptr<Business>> businesses;
+    std::vector<Achievement> achievements;
+
+    void initAchievements();
 
 public:
     Player(const std::string& name, double money);
@@ -24,11 +28,12 @@ public:
     const std::string& getName() const;
     double getMoney() const;
     const std::vector<std::unique_ptr<Business>>& getBusinesses() const;
+    const std::vector<Achievement>& getAchievements() const;
 
-    // Actualizeaza starea afacerilor si colecteaza profitul
-    void update(double deltaTime);
+    // Returneaza o lista de mesaje pentru achievement-urile deblocate in acest frame
+    std::vector<std::string> update(double deltaTime);
+    std::vector<std::string> checkAchievements();
 
-    // Porneste productia manuala pentru o afacere
     void startBusinessProduction(int index);
 
     void displayBusinesses() const;
@@ -36,6 +41,7 @@ public:
     void purchaseBusiness(int index);
     void upgradeBusiness(int index);
     void hireManager(int index);
+    void upgradeManager(int index);
 
     friend void swap(Player& first, Player& second) noexcept;
 };

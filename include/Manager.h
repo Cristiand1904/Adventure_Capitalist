@@ -5,10 +5,15 @@ class Manager {
 private:
     std::string name;
     double cost;
+    int level;
 
 public:
     Manager(std::string name, double cost);
 
     const std::string& getName() const;
     double getCost() const;
+    int getLevel() const;
+
+    void upgrade();
+    double getDiscountFactor() const; // Returneaza factorul de reducere (ex: 0.9)
 };

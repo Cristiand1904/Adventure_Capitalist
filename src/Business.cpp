@@ -70,7 +70,6 @@ double Business::update(double deltaTime) {
             if (!hasManagerHired()) {
                 isProducing = false;
             }
-            // Returnam profitul ca intreg (rotunjit in jos)
             return std::floor(profitPerCycle);
         }
     }
@@ -112,24 +111,44 @@ void Business::hireManager() {
     std::cout << "Manager angajat pentru " << name << "!\n";
 }
 
+void Business::upgradeManager() {
+    if (manager) {
+        manager->upgrade();
+    }
+}
+
 bool Business::isOwned() const { return owned; }
 bool Business::hasManagerHired() const { return manager != nullptr; }
 const std::string& Business::getName() const { return name; }
 int Business::getLevel() const { return level; }
 double Business::getProfitPerCycle() const { return profitPerCycle; }
-double Business::getUpgradeCost() const { return upgradeCost; }
-double Business::getPurchaseCost() const { return purchaseCost; }
+
+double Business::getUpgradeCost() const {
+    double cost = upgradeCost;
+    if (manager) {
+        cost *= manager->getDiscountFactor();
+    }
+    return std::floor(cost); // Returnam intreg
+}
+
+double Business::getPurchaseCost() const { return std::floor(purchaseCost); }
+
 double Business::getManagerCost() const {
-    return purchaseCost * 10;
+    return std::floor(purchaseCost * 10);
+}
+
+double Business::getManagerUpgradeCost() const {
+    if (manager) {
+        return std::floor(manager->getCost());
+    }
+    return 0.0;
 }
 
 double Business::getProgress() const {
     if (!isProducing) return 0.0;
-
     if (currentTimer >= productionTime - 0.1) {
         return 1.0;
     }
-
     return std::min(1.0, currentTimer / productionTime);
 }
 

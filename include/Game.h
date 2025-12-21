@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
 #include "Player.h"
 #include "Business.h"
 #include "LemonadeStand.h"
@@ -15,7 +16,7 @@ private:
 public:
     Game(const std::string& playerName, double initialMoney);
 
-    void update(double deltaTime); // Noua metoda de update
+    std::vector<std::string> update(double deltaTime); // Returneaza notificari
 
     Player& getPlayer() { return player; }
     const Player& getPlayer() const { return player; }
