@@ -13,12 +13,16 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-# --- RAYLIB SETUP (Versiunea 5.5 - STATIC) ---
+# --- RAYLIB SETUP (master pentru fix macOS) ---
 include(FetchContent)
+
+# Setam politica CMP0048 la NEW global, sperand ca se propaga
+cmake_policy(SET CMP0048 NEW)
+
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG        5.5
+    GIT_TAG        master
 )
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
@@ -26,7 +30,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(USE_EXTERNAL_GLFW OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(raylib)
-# ---------------------------------------------
+# ----------------------------------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
