@@ -12,7 +12,7 @@ protected:
     double profitPerCycle;
     double upgradeCost;
     double purchaseCost;
-    double managerBaseCost; // Costul de baza al managerului
+    double managerBaseCost;
     int level;
     bool owned;
     std::unique_ptr<Manager> manager;
@@ -46,6 +46,13 @@ public:
     void unlock();
     void hireManager();
     void upgradeManager();
+
+    // Setteri pentru incarcare joc
+    void setLevel(int lvl);
+    void setOwned(bool o);
+    void setManagerHired(bool h);
+    void setProfit(double p); // Necesara pentru a restaura profitul calculat
+    void setUpgradeCost(double c);
 
     bool isOwned() const;
     bool hasManagerHired() const;

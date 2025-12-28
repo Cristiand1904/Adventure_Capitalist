@@ -3,31 +3,66 @@
 #include <string>
 #include <cmath>
 #include <cstdio>
+#include <filesystem> // Pentru stergerea fisierului
 
-// Culori
 #define COLOR_BG        CLITERAL(Color){ 30, 30, 35, 255 }
 #define COLOR_PANEL     CLITERAL(Color){ 50, 50, 55, 255 }
-#define COLOR_ACCENT    CLITERAL(Color){ 255, 200, 0, 255 } // Galben auriu
+#define COLOR_ACCENT    CLITERAL(Color){ 255, 200, 0, 255 }
 #define COLOR_GREEN     CLITERAL(Color){ 100, 220, 50, 255 }
 #define COLOR_RED       CLITERAL(Color){ 220, 60, 60, 255 }
 #define COLOR_BLUE      CLITERAL(Color){ 60, 120, 220, 255 }
+#define COLOR_ICON_IDLE CLITERAL(Color){ 255, 200, 0, 255 }
+#define COLOR_ICON_RUN  CLITERAL(Color){ 150, 150, 150, 255 }
+#define COLOR_TEXT      CLITERAL(Color){ 240, 240, 240, 255 }
 
 Application::Application() {
     InitWindow(1000, 750, "Adventure Capitalist - Ultimate Edition");
     SetTargetFPS(60);
 
     game = std::make_unique<Game>("Capitalist", 0.0);
+
+    if (Game::saveFileExists()) {
+        std::cout << "Save file found. Loading...\n";
+        if (game->loadGame()) {
+            std::cout << "Game loaded successfully.\n";
+        } else {
+            std::cout << "Failed to load game.\n";
+        }
+    } else {
+        std::cout << "No save file. Starting new game.\n";
+    }
+
     initUI();
 }
 
 void Application::initUI() {
+    buttons.clear();
     for(int i=0; i<3; ++i) {
         createBusinessUI(i, 140 + i * 130);
     }
+
+    // Buton Save & Exit (Mai lat)
+    Button saveBtn;
+    saveBtn.rect = { 820, 20, 160, 50 }; // Latime marita la 160
+    saveBtn.text = "SAVE & EXIT";
+    saveBtn.color = COLOR_RED;
+    saveBtn.type = Button::SAVE_EXIT;
+    saveBtn.businessIndex = -1;
+    saveBtn.isPressed = false;
+    buttons.push_back(saveBtn);
+
+    // Buton Reset (Stanga sus)
+    Button resetBtn;
+    resetBtn.rect = { 20, 20, 100, 50 };
+    resetBtn.text = "RESET";
+    resetBtn.color = COLOR_BLUE;
+    resetBtn.type = Button::RESET;
+    resetBtn.businessIndex = -1;
+    resetBtn.isPressed = false;
+    buttons.push_back(resetBtn);
 }
 
 void Application::createBusinessUI(int index, float yPos) {
-    // START (Cerc)
     Button startBtn;
     startBtn.rect = { 50, yPos, 90, 90 };
     startBtn.text = "GO!";
@@ -37,7 +72,6 @@ void Application::createBusinessUI(int index, float yPos) {
     startBtn.isPressed = false;
     buttons.push_back(startBtn);
 
-    // BUY
     Button buyBtn;
     buyBtn.rect = { 750, yPos + 15, 200, 60 };
     buyBtn.text = "BUY";
@@ -47,7 +81,6 @@ void Application::createBusinessUI(int index, float yPos) {
     buyBtn.isPressed = false;
     buttons.push_back(buyBtn);
 
-    // MANAGER
     Button mngBtn;
     mngBtn.rect = { 680, yPos + 15, 60, 60 };
     mngBtn.text = "M";
@@ -80,6 +113,8 @@ bool Application::isButtonClicked(Button& btn) {
 }
 
 void Application::update() {
+    if (!game) return;
+
     std::vector<std::string> newNotifications = game->update(GetFrameTime());
     for (const auto& msg : newNotifications) {
         notifications.push_back({msg, 3.0f});
@@ -95,7 +130,21 @@ void Application::update() {
     for (auto& btn : buttons) {
         if (isButtonClicked(btn)) {
             try {
-                if (btn.type == Button::START) {
+                if (btn.type == Button::SAVE_EXIT) {
+                    std::cout << "Saving and Exiting...\n";
+                    game->saveGame();
+                    CloseWindow();
+                    exit(0);
+                } else if (btn.type == Button::RESET) {
+                    std::cout << "Resetting game...\n";
+                    // Stergem fisierul de salvare
+                    if (Game::saveFileExists()) {
+                        std::filesystem::remove("savegame.txt");
+                    }
+                    // Reinitializam jocul
+                    game = std::make_unique<Game>("Capitalist", 0.0);
+                    notifications.push_back({"GAME RESET!", 2.0f});
+                } else if (btn.type == Button::START) {
                     game->getPlayer().startBusinessProduction(btn.businessIndex);
                 } else if (btn.type == Button::UPGRADE) {
                     const auto& businesses = game->getPlayer().getBusinesses();
@@ -153,9 +202,9 @@ void Application::update() {
                 } else if (b->hasManagerHired()) {
                     btn.color = COLOR_GREEN;
                 } else if (b->isActive()) {
-                    btn.color = LIGHTGRAY;
+                    btn.color = COLOR_ICON_RUN;
                 } else {
-                    btn.color = COLOR_ACCENT;
+                    btn.color = COLOR_ICON_IDLE;
                 }
             }
         }
@@ -168,11 +217,12 @@ void Application::draw() {
 
     // Header
     DrawRectangle(0, 0, 1000, 100, BLACK);
-    DrawText("AdVenture Capitalist", 30, 30, 40, WHITE);
+    DrawText("AdVenture Capitalist", 150, 30, 40, WHITE); // Mutat mai la dreapta pentru a face loc butonului Reset
 
     std::string moneyStr = "$" + std::to_string((long long)game->getPlayer().getMoney());
     int moneyWidth = MeasureText(moneyStr.c_str(), 50);
-    DrawText(moneyStr.c_str(), 1000 - moneyWidth - 30, 25, 50, COLOR_ACCENT);
+    // Ajustam pozitia banilor sa fie intre titlu si butonul Save
+    DrawText(moneyStr.c_str(), 780 - moneyWidth, 25, 50, COLOR_ACCENT);
 
     const auto& businesses = game->getPlayer().getBusinesses();
 
@@ -180,12 +230,9 @@ void Application::draw() {
         float yPos = 140 + i * 130;
         const auto& b = businesses[i];
 
-        // Panel
         DrawRectangleRounded({20, yPos - 10, 960, 110}, 0.1f, 10, COLOR_PANEL);
-        // Eliminat parametrul de grosime care cauza eroarea
         DrawRectangleRoundedLines({20, yPos - 10, 960, 110}, 0.1f, 10, BLACK);
 
-        // Bara Progres
         float barX = 160;
         float barY = yPos + 45;
         float barW = 500;
@@ -200,7 +247,6 @@ void Application::draw() {
             }
         }
 
-        // Info
         std::string nameLvl = b->getName();
         if (b->isOwned()) nameLvl += "  [Lv " + std::to_string(b->getLevel()) + "]";
         DrawText(nameLvl.c_str(), barX, yPos + 5, 30, WHITE);
@@ -217,14 +263,11 @@ void Application::draw() {
         }
     }
 
-    // Butoane
     for (const auto& btn : buttons) {
         Rectangle drawRect = btn.rect;
         if (btn.isPressed) {
-            drawRect.x += 2;
-            drawRect.y += 2;
-            drawRect.width -= 4;
-            drawRect.height -= 4;
+            drawRect.x += 2; drawRect.y += 2;
+            drawRect.width -= 4; drawRect.height -= 4;
         }
 
         if (btn.type == Button::START) {
@@ -239,7 +282,6 @@ void Application::draw() {
         }
         else {
             DrawRectangleRounded(drawRect, 0.2f, 10, btn.color);
-            // Eliminat parametrul de grosime
             DrawRectangleRoundedLines(drawRect, 0.2f, 10, BLACK);
 
             if (btn.text.find('\n') != std::string::npos) {
@@ -262,7 +304,6 @@ void Application::draw() {
         }
     }
 
-    // Notificari
     if (!notifications.empty()) {
         const auto& notif = notifications.front();
         int textWidth = MeasureText(notif.text.c_str(), 30);

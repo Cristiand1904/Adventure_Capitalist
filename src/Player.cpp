@@ -10,22 +10,11 @@ Player::Player(const std::string& name, double money)
 }
 
 void Player::initAchievements() {
-    // 1. Primul Dolar - 10$
     achievements.emplace_back("Primul Dolar", "Castiga primul tau dolar", 10.0, AchievementType::MONEY, 1.0);
-
-    // 2. Primul Upgrade - 10$
     achievements.emplace_back("Primul Upgrade", "Fa un upgrade la o afacere", 10.0, AchievementType::HAS_UPGRADE, 1.0);
-
-    // 3. Primul Manager - 10$
     achievements.emplace_back("Primul Manager", "Angajeaza un manager", 10.0, AchievementType::HAS_MANAGER, 1.0);
-
-    // 4. 100 Dolari - 100$
     achievements.emplace_back("Suta de Dolari", "Strange 100$", 100.0, AchievementType::MONEY, 100.0);
-
-    // 5. 1.000 Dolari - 500$
     achievements.emplace_back("Mie de Dolari", "Strange 1.000$", 500.0, AchievementType::MONEY, 1000.0);
-
-    // 6. 100.000 Dolari - 50000$
     achievements.emplace_back("Magnat", "Strange 100.000$", 50000.0, AchievementType::MONEY, 100000.0);
 }
 
@@ -59,6 +48,19 @@ double Player::getMoney() const { return wallet.getMoney(); }
 const std::vector<std::unique_ptr<Business>>& Player::getBusinesses() const { return businesses; }
 const std::vector<Achievement>& Player::getAchievements() const { return achievements; }
 
+void Player::setMoney(double m) {
+    wallet = Wallet(m);
+}
+
+void Player::unlockAchievement(const std::string& name) {
+    for (auto& ach : achievements) {
+        if (ach.getName() == name) {
+            ach.unlock();
+            break;
+        }
+    }
+}
+
 std::vector<std::string> Player::update(double deltaTime) {
     double totalProfit = 0;
     for (const auto& b : businesses) {
@@ -83,7 +85,7 @@ std::vector<std::string> Player::checkAchievements() {
         if (b->isOwned()) {
             totalLevels += b->getLevel();
             if (b->hasManagerHired()) hasManager = true;
-            if (b->getLevel() > 1) hasUpgrade = true; // Consideram upgrade daca nivelul > 1
+            if (b->getLevel() > 1) hasUpgrade = true;
         }
     }
 

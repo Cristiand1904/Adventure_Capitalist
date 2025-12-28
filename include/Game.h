@@ -16,8 +16,13 @@ private:
 public:
     Game(const std::string& playerName, double initialMoney);
 
-    std::vector<std::string> update(double deltaTime); // Returneaza notificari
+    std::vector<std::string> update(double deltaTime);
 
     Player& getPlayer() { return player; }
     const Player& getPlayer() const { return player; }
+
+    // Metode pentru salvare/incarcare
+    void saveGame(const std::string& filename = "savegame.txt") const;
+    bool loadGame(const std::string& filename = "savegame.txt");
+    static bool saveFileExists(const std::string& filename = "savegame.txt");
 };

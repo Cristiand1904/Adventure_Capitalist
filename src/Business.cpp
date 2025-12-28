@@ -17,16 +17,14 @@ Business::Business(const std::string& name, double profit, double upgrade, doubl
       currentTimer(0.0),
       isProducing(false) {
 
-    // Daca nu e specificat costul managerului, il calculam
     if (managerBaseCost <= 0) {
         if (purchaseCost > 0) {
             managerBaseCost = purchaseCost * 10;
         } else {
-            managerBaseCost = 100.0; // Minim 100$ daca business-ul e gratis
+            managerBaseCost = 100.0;
         }
     }
 
-    // Asiguram ca upgradeCost nu e 0
     if (upgradeCost <= 0) {
         upgradeCost = 10.0;
     }
@@ -134,6 +132,20 @@ void Business::upgradeManager() {
         manager->upgrade();
     }
 }
+
+// Setteri
+void Business::setLevel(int lvl) { level = lvl; }
+void Business::setOwned(bool o) { owned = o; }
+void Business::setManagerHired(bool h) {
+    if (h && !manager) {
+        manager = std::make_unique<Manager>(name + " Manager", getManagerCost());
+        isProducing = true;
+    } else if (!h) {
+        manager = nullptr;
+    }
+}
+void Business::setProfit(double p) { profitPerCycle = p; }
+void Business::setUpgradeCost(double c) { upgradeCost = c; }
 
 bool Business::isOwned() const { return owned; }
 bool Business::hasManagerHired() const { return manager != nullptr; }
