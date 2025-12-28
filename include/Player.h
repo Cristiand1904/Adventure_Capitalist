@@ -32,7 +32,7 @@ public:
 
     // Setteri pentru incarcare
     void setMoney(double m);
-    void unlockAchievement(const std::string& name);
+    void unlockAchievement(const std::string& achievementName); // Redenumit
 
     std::vector<std::string> update(double deltaTime);
     std::vector<std::string> checkAchievements();
