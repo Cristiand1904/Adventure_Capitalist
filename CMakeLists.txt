@@ -13,38 +13,21 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-# --- RAYLIB SETUP (master cu patch pentru CMake) ---
+# --- RAYLIB SETUP (Clean master) ---
 include(FetchContent)
 
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
     GIT_TAG        master
-    # Patch pentru a actualiza versiunea minima de CMake in Raylib
-    PATCH_COMMAND "${CMAKE_COMMAND}" -E echo "cmake_minimum_required(VERSION 3.11)" > CMakeLists.txt.tmp && type CMakeLists.txt >> CMakeLists.txt.tmp && move /Y CMakeLists.txt.tmp CMakeLists.txt
 )
-# Nota: Comanda de patch de mai sus e specifica Windows (move /Y).
-# Daca ruleaza pe Linux, va esua. Dar pe Linux nu avem problema asta de obicei.
-# O varianta cross-platform e mai grea fara un script.
-# Voi incerca sa nu folosesc patch, ci sa sper ca master-ul Raylib a fost actualizat recent.
-# Raylib master ARE cmake_minimum_required(VERSION 3.11) acum!
-# Deci eroarea ta inseamna ca ai un cache vechi sau FetchContent nu a facut update la repo.
-
-# Voi forta update-ul
-FetchContent_Declare(
-    raylib
-    GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG        master
-    GIT_SHALLOW    FALSE # Poate ajuta la update
-)
-
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(USE_EXTERNAL_GLFW OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(raylib)
-# ----------------------------------------------
+# -----------------------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
@@ -75,7 +58,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
 
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
-# --- STATIC LINKING PENTRU TOT ---
+# --- STATIC LINKING PENTRU TOT (Doar pe Windows) ---
 if(WIN32)
     target_link_options(${MAIN_EXECUTABLE_NAME} PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
