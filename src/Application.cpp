@@ -2,7 +2,6 @@
 #include <iostream>
 #include <cmath>
 #include <filesystem>
-#include <cstdlib>
 
 #define COLOR_BG        sf::Color(30, 30, 35)
 #define COLOR_PANEL     sf::Color(50, 50, 55)
@@ -18,14 +17,14 @@
 #define COLOR_GRAY      sf::Color(128, 128, 128)
 
 Application::Application(bool headless) {
-    bool isCI = std::getenv("GITHUB_ACTIONS") != nullptr;
+    (void)headless;
 
-    if (!headless && !isCI) {
-        window.create(sf::VideoMode(1000, 750), "Adventure Capitalist - Ultimate Edition");
-        window.setFramerateLimit(60);
+    window.create(sf::VideoMode(1000, 750), "Adventure Capitalist - Ultimate Edition");
+    window.setFramerateLimit(60);
 
-        if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")) {
-            if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
+    if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")) {
+        if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
+            if (!font.loadFromFile("/System/Library/Fonts/Supplemental/Arial.ttf")) {
                 std::cerr << "Failed to load font!\n";
             }
         }
@@ -35,9 +34,7 @@ Application::Application(bool headless) {
     stateTransitionTimer = 0.0f;
 
     game = std::make_unique<Game>("Capitalist", 0.0);
-    if (!isCI) {
-        initUI();
-    }
+    initUI();
 }
 
 void Application::initUI() {

@@ -16,12 +16,36 @@ include(cmake/CopyHelper.cmake)
 if(DEFINED ENV{GITHUB_ACTIONS})
     message(STATUS "Building in CI/CD mode - headless only")
     set(HEADLESS_BUILD ON)
-    add_compile_definitions(HEADLESS_BUILD)
 else()
     set(HEADLESS_BUILD OFF)
 endif()
 
-if(NOT HEADLESS_BUILD)
+if(HEADLESS_BUILD)
+    add_executable(${MAIN_EXECUTABLE_NAME}
+            main.cpp
+            include/Business.h
+            include/StandardBusiness.h
+            include/Player.h
+            include/Game.h
+            include/Upgrade.h
+            include/Achievement.h
+            include/Manager.h
+            include/Wallet.h
+            include/Exceptions.h
+            include/ApplicationHeadless.h
+            src/Business.cpp
+            src/StandardBusiness.cpp
+            src/Player.cpp
+            src/Game.cpp
+            src/Upgrade.cpp
+            src/Achievement.cpp
+            src/Manager.cpp
+            src/Wallet.cpp
+            src/ApplicationHeadless.cpp
+    )
+
+    target_compile_definitions(${MAIN_EXECUTABLE_NAME} PRIVATE USE_HEADLESS_APP)
+else()
     include(FetchContent)
     FetchContent_Declare(
             SFML
@@ -29,36 +53,34 @@ if(NOT HEADLESS_BUILD)
             GIT_TAG 2.6.2
     )
     FetchContent_MakeAvailable(SFML)
-endif()
 
-add_executable(${MAIN_EXECUTABLE_NAME}
-        main.cpp
-        include/Business.h
-        include/StandardBusiness.h
-        include/Player.h
-        include/Game.h
-        include/Upgrade.h
-        include/Achievement.h
-        include/Manager.h
-        include/Wallet.h
-        include/Exceptions.h
-        include/Application.h
-        src/Business.cpp
-        src/StandardBusiness.cpp
-        src/Player.cpp
-        src/Game.cpp
-        src/Upgrade.cpp
-        src/Achievement.cpp
-        src/Manager.cpp
-        src/Wallet.cpp
-        src/Application.cpp
-)
+    add_executable(${MAIN_EXECUTABLE_NAME}
+            main.cpp
+            include/Business.h
+            include/StandardBusiness.h
+            include/Player.h
+            include/Game.h
+            include/Upgrade.h
+            include/Achievement.h
+            include/Manager.h
+            include/Wallet.h
+            include/Exceptions.h
+            include/Application.h
+            src/Business.cpp
+            src/StandardBusiness.cpp
+            src/Player.cpp
+            src/Game.cpp
+            src/Upgrade.cpp
+            src/Achievement.cpp
+            src/Manager.cpp
+            src/Wallet.cpp
+            src/Application.cpp
+    )
 
-set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
-
-if(NOT HEADLESS_BUILD)
     target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 endif()
+
+set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
 if(WIN32 AND NOT HEADLESS_BUILD)
     target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-main)

@@ -1,4 +1,9 @@
+#ifdef USE_HEADLESS_APP
+#include "include/ApplicationHeadless.h"
+#else
 #include "include/Application.h"
+#endif
+
 #include <iostream>
 
 int main() {
