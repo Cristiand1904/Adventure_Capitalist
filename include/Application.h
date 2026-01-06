@@ -1,5 +1,7 @@
 #pragma once
+#ifndef HEADLESS_BUILD
 #include <SFML/Graphics.hpp>
+#endif
 #include "Game.h"
 #include <memory>
 #include <vector>
@@ -9,18 +11,26 @@
 class Application {
 private:
     std::unique_ptr<Game> game;
+
+#ifndef HEADLESS_BUILD
     sf::RenderWindow window;
     sf::Font font;
     sf::Clock clock;
+#endif
 
     enum class AppState { MENU, GAME };
     AppState currentState;
     float stateTransitionTimer;
 
     struct Button {
+#ifndef HEADLESS_BUILD
         sf::FloatRect rect;
-        std::string text;
         sf::Color color;
+#else
+        float rect[4];
+        int color;
+#endif
+        std::string text;
         int businessIndex;
         enum Type { BUY, UPGRADE, MANAGER, START, NEW_GAME, LOAD_GAME, SAVE_EXIT, RESET } type;
         bool isPressed;
@@ -57,11 +67,13 @@ private:
     void drawGameNotifications();
 
     void createBusinessUI(int index, float yPos);
-    bool isButtonClicked(Button& btn, const sf::Vector2i& mousePos);
 
+#ifndef HEADLESS_BUILD
+    bool isButtonClicked(Button& btn, const sf::Vector2i& mousePos);
     void drawButton(const Button& btn, bool isCircle = false);
     void drawText(const std::string& text, float x, float y, int size, sf::Color color);
     int getTextWidth(const std::string& text, int size);
+#endif
 
 public:
     Application(bool headless = false);
