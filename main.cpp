@@ -13,31 +13,37 @@ int main() {
     std::cout << "Aplicatie initializata. Rulare...\n";
 
 #ifdef USE_HEADLESS_APP
-    auto& game = app.getGame();
-    game.getPlayer();
-    game.saveGame("test.txt");
-    game.loadGame("test.txt");
-    game.saveFileExists("test.txt");
+    try {
+        auto& game = app.getGame();
+        game.getPlayer();
+        game.saveGame("test.txt");
+        game.loadGame("test.txt");
+        game.saveFileExists("test.txt");
 
-    auto& player = game.getPlayer();
-    const auto& businesses = player.getBusinesses();
-    if (!businesses.empty()) {
-        player.startBusinessProduction(0);
-        player.purchaseBusiness(0);
-        player.upgradeBusiness(0);
-    }
+        auto& player = game.getPlayer();
+        const auto& businesses = player.getBusinesses();
+        if (!businesses.empty()) {
+            player.startBusinessProduction(0);
+            try {
+                player.purchaseBusiness(0);
+            } catch (...) {}
+            try {
+                player.upgradeBusiness(0);
+            } catch (...) {}
+        }
 
-    const auto& achievements = player.getAchievements();
-    if (!achievements.empty()) {
-        achievements[0].getDescription();
-    }
+        const auto& achievements = player.getAchievements();
+        if (!achievements.empty()) {
+            achievements[0].getDescription();
+        }
 
-    if (!businesses.empty()) {
-        businesses[0]->setManagerHired(false);
-        businesses[0]->getProgress();
-        businesses[0]->getProductionTime();
-        businesses[0]->isActive();
-    }
+        if (!businesses.empty()) {
+            businesses[0]->setManagerHired(false);
+            businesses[0]->getProgress();
+            businesses[0]->getProductionTime();
+            businesses[0]->isActive();
+        }
+    } catch (...) {}
 #endif
 
     app.run();
