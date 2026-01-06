@@ -8,6 +8,7 @@ Application::Application(bool headless)
 
 void Application::run() {
     runHeadless();
+    getGame();
 }
 
 void Application::runHeadless() {
