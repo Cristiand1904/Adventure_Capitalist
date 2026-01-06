@@ -13,12 +13,15 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
+set(CMAKE_POLICY_DEFAULT_CMP0048 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 include(FetchContent)
 
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG        5.5
+    GIT_TAG        master
 )
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
@@ -26,7 +29,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(USE_EXTERNAL_GLFW OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(raylib)
-# ---------------------------------------------------------------------
+# ----------------------------------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
@@ -37,6 +40,9 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         include/Achievement.h
         include/Manager.h
         include/Wallet.h
+        include/LemonadeStand.h
+        include/Restaurant.h
+        include/IceCreamShop.h
         include/Exceptions.h
         include/Application.h
         src/Business.cpp
@@ -46,6 +52,9 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/Achievement.cpp
         src/Manager.cpp
         src/Wallet.cpp
+        src/LemonadeStand.cpp
+        src/Restaurant.cpp
+        src/IceCreamShop.cpp
         src/Application.cpp
 )
 
