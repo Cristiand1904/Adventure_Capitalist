@@ -1,71 +1,58 @@
-cmake_minimum_required(VERSION 3.20)
-project(oop)
+cmake_minimum_required(VERSION 3.26)
 
-set(CMAKE_CXX_STANDARD 17)
+set(MAIN_PROJECT_NAME "oop")
+set(MAIN_EXECUTABLE_NAME "${MAIN_PROJECT_NAME}")
+
+project(${MAIN_PROJECT_NAME})
+
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(APPLE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x objective-c")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
-    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-    set(CMAKE_HAVE_THREADS_LIBRARY 1)
-    set(CMAKE_USE_WIN32_THREADS_INIT 0)
-    set(CMAKE_USE_PTHREADS_INIT 1)
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-endif()
-
-set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+include(cmake/Options.cmake)
+include(cmake/CompilerFlags.cmake)
+include(cmake/CopyHelper.cmake)
 
 include(FetchContent)
 FetchContent_Declare(
-        raylib
-        GIT_REPOSITORY https://github.com/raysan5/raylib.git
-        GIT_TAG 5.5
+        SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 2.6.2
 )
-FetchContent_MakeAvailable(raylib)
+FetchContent_MakeAvailable(SFML)
 
-file(GLOB SOURCES
-        "${CMAKE_SOURCE_DIR}/src/*.cpp"
+add_executable(${MAIN_EXECUTABLE_NAME}
+        main.cpp
+        include/Business.h
+        include/StandardBusiness.h
+        include/Player.h
+        include/Game.h
+        include/Upgrade.h
+        include/Achievement.h
+        include/Manager.h
+        include/Wallet.h
+        include/Exceptions.h
+        include/Application.h
+        src/Business.cpp
+        src/StandardBusiness.cpp
+        src/Player.cpp
+        src/Game.cpp
+        src/Upgrade.cpp
+        src/Achievement.cpp
+        src/Manager.cpp
+        src/Wallet.cpp
+        src/Application.cpp
 )
 
-set(MAIN_SOURCE "${CMAKE_SOURCE_DIR}/main.cpp")
+set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
-file(GLOB_RECURSE HEADERS
-        "${CMAKE_SOURCE_DIR}/include/*.h"
-)
-
-add_executable(${PROJECT_NAME} ${MAIN_SOURCE} ${SOURCES} ${HEADERS})
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/artifacts/bin"
-)
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-)
-
-target_link_libraries(${PROJECT_NAME} raylib)
-
-if(APPLE)
-    target_link_libraries(${PROJECT_NAME}
-            "-framework IOKit"
-            "-framework Cocoa"
-            "-framework OpenGL"
-    )
-endif()
+target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} winmm gdi32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-            WIN32_EXECUTABLE FALSE
-    )
+    target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-main)
+    target_link_options(${MAIN_EXECUTABLE_NAME} PRIVATE -static -static-libgcc -static-libstdc++ -mconsole)
 endif()
 
-if(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} m pthread dl rt)
-endif()
+install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})
+install(FILES launcher.command DESTINATION ${DESTINATION_DIR})
+copy_files(FILES date_intrare.txt COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})

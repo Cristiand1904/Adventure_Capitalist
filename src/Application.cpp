@@ -1,24 +1,31 @@
 #include "../include/Application.h"
 #include <iostream>
-#include <string>
 #include <cmath>
-#include <cstdio>
 #include <filesystem>
 
-#define COLOR_BG        CLITERAL(Color){ 30, 30, 35, 255 }
-#define COLOR_PANEL     CLITERAL(Color){ 50, 50, 55, 255 }
-#define COLOR_ACCENT    CLITERAL(Color){ 255, 200, 0, 255 }
-#define COLOR_GREEN     CLITERAL(Color){ 100, 220, 50, 255 }
-#define COLOR_RED       CLITERAL(Color){ 220, 60, 60, 255 }
-#define COLOR_BLUE      CLITERAL(Color){ 60, 120, 220, 255 }
-#define COLOR_ICON_IDLE CLITERAL(Color){ 255, 200, 0, 255 }
-#define COLOR_ICON_RUN  CLITERAL(Color){ 150, 150, 150, 255 }
-#define COLOR_TEXT      CLITERAL(Color){ 240, 240, 240, 255 }
+#define COLOR_BG        sf::Color(30, 30, 35)
+#define COLOR_PANEL     sf::Color(50, 50, 55)
+#define COLOR_ACCENT    sf::Color(255, 200, 0)
+#define COLOR_GREEN     sf::Color(100, 220, 50)
+#define COLOR_RED       sf::Color(220, 60, 60)
+#define COLOR_BLUE      sf::Color(60, 120, 220)
+#define COLOR_ICON_IDLE sf::Color(255, 200, 0)
+#define COLOR_ICON_RUN  sf::Color(150, 150, 150)
+#define COLOR_TEXT      sf::Color(240, 240, 240)
+#define COLOR_BLACK     sf::Color::Black
+#define COLOR_WHITE     sf::Color::White
+#define COLOR_GRAY      sf::Color(128, 128, 128)
 
 Application::Application(bool headless) {
     if (!headless) {
-        InitWindow(1000, 750, "Adventure Capitalist - Ultimate Edition");
-        SetTargetFPS(60);
+        window.create(sf::VideoMode(1000, 750), "Adventure Capitalist - Ultimate Edition");
+        window.setFramerateLimit(60);
+
+        if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")) {
+            if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
+                std::cerr << "Failed to load font!\n";
+            }
+        }
     }
 
     currentState = AppState::MENU;
@@ -36,7 +43,7 @@ void Application::initMenuUI() {
     menuButtons.clear();
 
     Button newGameBtn;
-    newGameBtn.rect = { 350, 300, 300, 80 };
+    newGameBtn.rect = sf::FloatRect(350, 300, 300, 80);
     newGameBtn.text = "NEW GAME";
     newGameBtn.color = COLOR_GREEN;
     newGameBtn.type = Button::NEW_GAME;
@@ -45,7 +52,7 @@ void Application::initMenuUI() {
 
     if (Game::saveFileExists()) {
         Button loadGameBtn;
-        loadGameBtn.rect = { 350, 400, 300, 80 };
+        loadGameBtn.rect = sf::FloatRect(350, 400, 300, 80);
         loadGameBtn.text = "LOAD GAME";
         loadGameBtn.color = COLOR_BLUE;
         loadGameBtn.type = Button::LOAD_GAME;
@@ -61,7 +68,7 @@ void Application::initGameUI() {
     }
 
     Button saveBtn;
-    saveBtn.rect = { 820, 20, 160, 50 };
+    saveBtn.rect = sf::FloatRect(820, 20, 160, 50);
     saveBtn.text = "SAVE & EXIT";
     saveBtn.color = COLOR_RED;
     saveBtn.type = Button::SAVE_EXIT;
@@ -70,7 +77,7 @@ void Application::initGameUI() {
     gameButtons.push_back(saveBtn);
 
     Button resetBtn;
-    resetBtn.rect = { 20, 20, 100, 50 };
+    resetBtn.rect = sf::FloatRect(20, 20, 100, 50);
     resetBtn.text = "RESET";
     resetBtn.color = COLOR_BLUE;
     resetBtn.type = Button::RESET;
@@ -81,7 +88,7 @@ void Application::initGameUI() {
 
 void Application::createBusinessUI(int index, float yPos) {
     Button startBtn;
-    startBtn.rect = { 50, yPos, 90, 90 };
+    startBtn.rect = sf::FloatRect(50, yPos, 90, 90);
     startBtn.text = "GO!";
     startBtn.color = COLOR_ACCENT;
     startBtn.type = Button::START;
@@ -90,7 +97,7 @@ void Application::createBusinessUI(int index, float yPos) {
     gameButtons.push_back(startBtn);
 
     Button buyBtn;
-    buyBtn.rect = { 750, yPos + 15, 200, 60 };
+    buyBtn.rect = sf::FloatRect(750, yPos + 15, 200, 60);
     buyBtn.text = "BUY";
     buyBtn.color = COLOR_ACCENT;
     buyBtn.type = Button::UPGRADE;
@@ -99,7 +106,7 @@ void Application::createBusinessUI(int index, float yPos) {
     gameButtons.push_back(buyBtn);
 
     Button mngBtn;
-    mngBtn.rect = { 680, yPos + 15, 60, 60 };
+    mngBtn.rect = sf::FloatRect(680, yPos + 15, 60, 60);
     mngBtn.text = "M";
     mngBtn.color = COLOR_BLUE;
     mngBtn.type = Button::MANAGER;
@@ -109,11 +116,18 @@ void Application::createBusinessUI(int index, float yPos) {
 }
 
 void Application::run() {
-    while (!WindowShouldClose()) {
-        update();
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+        }
+
+        float dt = clock.restart().asSeconds();
+        update(dt);
         draw();
     }
-    CloseWindow();
 }
 
 void Application::runHeadless() {
@@ -124,36 +138,41 @@ void Application::runHeadless() {
     std::cout << "Headless run completed successfully.\n";
 }
 
-bool Application::isButtonClicked(Button& btn) {
+bool Application::isButtonClicked(Button& btn, const sf::Vector2i& mousePos) {
     if (stateTransitionTimer > 0.0f) return false;
 
-    Vector2 mousePoint = GetMousePosition();
-    bool hover = CheckCollisionPointRec(mousePoint, btn.rect);
+    bool hover = btn.rect.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
-    if (hover && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+    if (hover && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
         btn.isPressed = true;
-    } else {
+    } else if (!sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        if (btn.isPressed && hover) {
+            btn.isPressed = false;
+            return true;
+        }
         btn.isPressed = false;
     }
 
-    return hover && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
+    return false;
 }
 
-void Application::update() {
+void Application::update(float dt) {
     if (stateTransitionTimer > 0.0f) {
-        stateTransitionTimer -= GetFrameTime();
+        stateTransitionTimer -= dt;
     }
 
     if (currentState == AppState::MENU) {
-        updateMenu();
+        updateMenu(dt);
     } else {
-        updateGame();
+        updateGame(dt);
     }
 }
 
-void Application::updateMenu() {
+void Application::updateMenu(float dt) {
+    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
     for (auto& btn : menuButtons) {
-        if (isButtonClicked(btn)) {
+        if (isButtonClicked(btn, mousePos)) {
             if (btn.type == Button::NEW_GAME) {
                 game = std::make_unique<Game>("Capitalist", 0.0);
                 initGameUI();
@@ -173,20 +192,20 @@ void Application::updateMenu() {
     }
 }
 
-void Application::updateGame() {
-    updateGameNotifications();
+void Application::updateGame(float dt) {
+    updateGameNotifications(dt);
     updateGameInput();
     updateGameButtonsState();
 }
 
-void Application::updateGameNotifications() {
-    std::vector<std::string> newNotifications = game->update(GetFrameTime());
+void Application::updateGameNotifications(float dt) {
+    std::vector<std::string> newNotifications = game->update(dt);
     for (const auto& msg : newNotifications) {
         notifications.push_back({msg, 3.0f});
     }
 
     if (!notifications.empty()) {
-        notifications.front().timer -= GetFrameTime();
+        notifications.front().timer -= dt;
         if (notifications.front().timer <= 0) {
             notifications.pop_front();
         }
@@ -194,8 +213,10 @@ void Application::updateGameNotifications() {
 }
 
 void Application::updateGameInput() {
+    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
     for (auto& btn : gameButtons) {
-        if (isButtonClicked(btn)) {
+        if (isButtonClicked(btn, mousePos)) {
             handleButtonClick(btn);
         }
     }
@@ -205,8 +226,7 @@ void Application::handleButtonClick(const Button& btn) {
     try {
         if (btn.type == Button::SAVE_EXIT) {
             game->saveGame();
-            CloseWindow();
-            exit(0);
+            window.close();
         } else if (btn.type == Button::RESET) {
             if (Game::saveFileExists()) {
                 std::filesystem::remove("savegame.txt");
@@ -263,11 +283,11 @@ void Application::updateGameButtonsState() {
                     btn.color = COLOR_GREEN;
                 } else {
                     btn.text = "MNG\n$" + std::to_string((int)b->getManagerCost());
-                    btn.color = GRAY;
+                    btn.color = COLOR_GRAY;
                 }
             } else if (btn.type == Button::START) {
                 if (!b->isOwned()) {
-                    btn.color = GRAY;
+                    btn.color = COLOR_GRAY;
                 } else if (b->hasManagerHired()) {
                     btn.color = COLOR_GREEN;
                 } else if (b->isActive()) {
@@ -281,8 +301,7 @@ void Application::updateGameButtonsState() {
 }
 
 void Application::draw() {
-    BeginDrawing();
-    ClearBackground(COLOR_BG);
+    window.clear(COLOR_BG);
 
     if (currentState == AppState::MENU) {
         drawMenu();
@@ -290,26 +309,14 @@ void Application::draw() {
         drawGame();
     }
 
-    EndDrawing();
+    window.display();
 }
 
 void Application::drawMenu() {
-    DrawText("AdVenture Capitalist", 250, 150, 50, COLOR_ACCENT);
+    drawText("AdVenture Capitalist", 250, 150, 50, COLOR_ACCENT);
 
     for (const auto& btn : menuButtons) {
-        Rectangle drawRect = btn.rect;
-        if (btn.isPressed) {
-            drawRect.x += 2; drawRect.y += 2;
-            drawRect.width -= 4; drawRect.height -= 4;
-        }
-        DrawRectangleRounded(drawRect, 0.2f, 10, btn.color);
-        DrawRectangleRoundedLines(drawRect, 0.2f, 10, BLACK);
-
-        int w = MeasureText(btn.text.c_str(), 30);
-        DrawText(btn.text.c_str(),
-                 drawRect.x + drawRect.width/2 - w/2,
-                 drawRect.y + drawRect.height/2 - 15,
-                 30, WHITE);
+        drawButton(btn);
     }
 }
 
@@ -321,12 +328,15 @@ void Application::drawGame() {
 }
 
 void Application::drawGameHeader() {
-    DrawRectangle(0, 0, 1000, 100, BLACK);
-    DrawText("AdVenture Capitalist", 150, 30, 40, WHITE);
+    sf::RectangleShape header(sf::Vector2f(1000, 100));
+    header.setFillColor(COLOR_BLACK);
+    window.draw(header);
+
+    drawText("AdVenture Capitalist", 150, 30, 40, COLOR_WHITE);
 
     std::string moneyStr = "$" + std::to_string((long long)game->getPlayer().getMoney());
-    int moneyWidth = MeasureText(moneyStr.c_str(), 50);
-    DrawText(moneyStr.c_str(), 780 - moneyWidth, 25, 50, COLOR_ACCENT);
+    int moneyWidth = getTextWidth(moneyStr, 50);
+    drawText(moneyStr, 780 - moneyWidth, 25, 50, COLOR_ACCENT);
 }
 
 void Application::drawGameBusinesses() {
@@ -336,107 +346,155 @@ void Application::drawGameBusinesses() {
         float yPos = 140 + i * 130;
         const auto& b = businesses[i];
 
-        DrawRectangleRounded({20, yPos - 10, 960, 110}, 0.1f, 10, COLOR_PANEL);
-        DrawRectangleRoundedLines({20, yPos - 10, 960, 110}, 0.1f, 10, BLACK);
+        sf::RectangleShape panel(sf::Vector2f(960, 110));
+        panel.setPosition(20, yPos - 10);
+        panel.setFillColor(COLOR_PANEL);
+        panel.setOutlineColor(COLOR_BLACK);
+        panel.setOutlineThickness(2);
+        window.draw(panel);
 
         float barX = 160;
         float barY = yPos + 45;
         float barW = 500;
         float barH = 35;
 
-        DrawRectangle(barX, barY, barW, barH, BLACK);
+        sf::RectangleShape bar(sf::Vector2f(barW, barH));
+        bar.setPosition(barX, barY);
+        bar.setFillColor(COLOR_BLACK);
+        window.draw(bar);
+
         if (b->isOwned()) {
             float progress = b->getProgress();
-            DrawRectangle(barX, barY, barW * progress, barH, COLOR_GREEN);
+            sf::RectangleShape progressBar(sf::Vector2f(barW * progress, barH));
+            progressBar.setPosition(barX, barY);
+            progressBar.setFillColor(COLOR_GREEN);
+            window.draw(progressBar);
+
             if (progress >= 1.0f) {
-                DrawRectangleLinesEx({barX, barY, barW, barH}, 2, WHITE);
+                sf::RectangleShape outline(sf::Vector2f(barW, barH));
+                outline.setPosition(barX, barY);
+                outline.setFillColor(sf::Color::Transparent);
+                outline.setOutlineColor(COLOR_WHITE);
+                outline.setOutlineThickness(2);
+                window.draw(outline);
             }
         }
 
         std::string nameLvl = b->getName();
         if (b->isOwned()) nameLvl += "  [Lv " + std::to_string(b->getLevel()) + "]";
-        DrawText(nameLvl.c_str(), barX, yPos + 5, 30, WHITE);
+        drawText(nameLvl, barX, yPos + 5, 30, COLOR_WHITE);
 
         if (b->isOwned()) {
             std::string profitStr = "$" + std::to_string((int)b->getProfitPerCycle());
-            DrawText(profitStr.c_str(), barX + 10, barY + 5, 24, WHITE);
+            drawText(profitStr, barX + 10, barY + 5, 24, COLOR_WHITE);
 
             char timeBuffer[16];
             snprintf(timeBuffer, sizeof(timeBuffer), "%.1fs", b->getProductionTime());
-            DrawText(timeBuffer, barX + barW - 80, barY + 5, 24, WHITE);
+            drawText(timeBuffer, barX + barW - 80, barY + 5, 24, COLOR_WHITE);
         } else {
-            DrawText("LOCKED", barX + 200, barY + 5, 24, COLOR_RED);
+            drawText("LOCKED", barX + 200, barY + 5, 24, COLOR_RED);
         }
     }
 }
 
 void Application::drawGameButtons() {
     for (const auto& btn : gameButtons) {
-        Rectangle drawRect = btn.rect;
-        if (btn.isPressed) {
-            drawRect.x += 2; drawRect.y += 2;
-            drawRect.width -= 4; drawRect.height -= 4;
-        }
-
-        if (btn.type == Button::START) {
-            Vector2 center = { drawRect.x + drawRect.width/2, drawRect.y + drawRect.height/2 };
-            DrawCircleV(center, drawRect.width/2, btn.color);
-            DrawCircleLines(center.x, center.y, drawRect.width/2, BLACK);
-
-            const char* iconText = "Click";
-            if (btn.color.r == COLOR_GREEN.r) iconText = "Auto";
-            int w = MeasureText(iconText, 20);
-            DrawText(iconText, center.x - w/2, center.y - 10, 20, BLACK);
-        }
-        else {
-            DrawRectangleRounded(drawRect, 0.2f, 10, btn.color);
-            DrawRectangleRoundedLines(drawRect, 0.2f, 10, BLACK);
-
-            if (btn.text.find('\n') != std::string::npos) {
-                size_t pos = btn.text.find('\n');
-                std::string line1 = btn.text.substr(0, pos);
-                std::string line2 = btn.text.substr(pos + 1);
-
-                int w1 = MeasureText(line1.c_str(), 20);
-                int w2 = MeasureText(line2.c_str(), 20);
-
-                DrawText(line1.c_str(), drawRect.x + drawRect.width/2 - w1/2, drawRect.y + 10, 20, WHITE);
-                DrawText(line2.c_str(), drawRect.x + drawRect.width/2 - w2/2, drawRect.y + 35, 20, WHITE);
-            } else {
-                int w = MeasureText(btn.text.c_str(), 20);
-                DrawText(btn.text.c_str(),
-                         drawRect.x + drawRect.width/2 - w/2,
-                         drawRect.y + drawRect.height/2 - 10,
-                         20, WHITE);
-            }
-        }
+        drawButton(btn, btn.type == Button::START);
     }
 }
 
 void Application::drawGameNotifications() {
     if (!notifications.empty()) {
         const auto& notif = notifications.front();
-        int textWidth = MeasureText(notif.text.c_str(), 30);
+        int textWidth = getTextWidth(notif.text, 30);
         int boxW = textWidth + 60;
         int boxH = 120;
         int boxX = 500 - boxW / 2;
         int boxY = 375 - boxH / 2;
 
-        DrawRectangle(boxX, boxY, boxW, boxH, BLACK);
-        DrawRectangleLinesEx({(float)boxX, (float)boxY, (float)boxW, (float)boxH}, 4, COLOR_ACCENT);
+        sf::RectangleShape box(sf::Vector2f(boxW, boxH));
+        box.setPosition(boxX, boxY);
+        box.setFillColor(COLOR_BLACK);
+        box.setOutlineColor(COLOR_ACCENT);
+        box.setOutlineThickness(4);
+        window.draw(box);
 
         if (notif.text.find('\n') != std::string::npos) {
-             size_t pos = notif.text.find('\n');
-             std::string line1 = notif.text.substr(0, pos);
-             std::string line2 = notif.text.substr(pos + 1);
+            size_t pos = notif.text.find('\n');
+            std::string line1 = notif.text.substr(0, pos);
+            std::string line2 = notif.text.substr(pos + 1);
 
-             int w1 = MeasureText(line1.c_str(), 30);
-             int w2 = MeasureText(line2.c_str(), 30);
+            int w1 = getTextWidth(line1, 30);
+            int w2 = getTextWidth(line2, 30);
 
-             DrawText(line1.c_str(), boxX + boxW/2 - w1/2, boxY + 20, 30, COLOR_ACCENT);
-             DrawText(line2.c_str(), boxX + boxW/2 - w2/2, boxY + 60, 30, WHITE);
+            drawText(line1, boxX + boxW/2 - w1/2, boxY + 20, 30, COLOR_ACCENT);
+            drawText(line2, boxX + boxW/2 - w2/2, boxY + 60, 30, COLOR_WHITE);
         } else {
-             DrawText(notif.text.c_str(), boxX + 30, boxY + 45, 30, COLOR_ACCENT);
+            drawText(notif.text, boxX + 30, boxY + 45, 30, COLOR_ACCENT);
         }
     }
+}
+
+void Application::drawButton(const Button& btn, bool isCircle) {
+    sf::FloatRect drawRect = btn.rect;
+    if (btn.isPressed) {
+        drawRect.left += 2;
+        drawRect.top += 2;
+        drawRect.width -= 4;
+        drawRect.height -= 4;
+    }
+
+    if (isCircle) {
+        sf::CircleShape circle(drawRect.width / 2);
+        circle.setPosition(drawRect.left, drawRect.top);
+        circle.setFillColor(btn.color);
+        circle.setOutlineColor(COLOR_BLACK);
+        circle.setOutlineThickness(2);
+        window.draw(circle);
+
+        const char* iconText = "Click";
+        if (btn.color == COLOR_GREEN) iconText = "Auto";
+        int w = getTextWidth(iconText, 20);
+        drawText(iconText, drawRect.left + drawRect.width/2 - w/2, drawRect.top + drawRect.height/2 - 10, 20, COLOR_BLACK);
+    } else {
+        sf::RectangleShape rect(sf::Vector2f(drawRect.width, drawRect.height));
+        rect.setPosition(drawRect.left, drawRect.top);
+        rect.setFillColor(btn.color);
+        rect.setOutlineColor(COLOR_BLACK);
+        rect.setOutlineThickness(2);
+        window.draw(rect);
+
+        if (btn.text.find('\n') != std::string::npos) {
+            size_t pos = btn.text.find('\n');
+            std::string line1 = btn.text.substr(0, pos);
+            std::string line2 = btn.text.substr(pos + 1);
+
+            int w1 = getTextWidth(line1, 20);
+            int w2 = getTextWidth(line2, 20);
+
+            drawText(line1, drawRect.left + drawRect.width/2 - w1/2, drawRect.top + 10, 20, COLOR_WHITE);
+            drawText(line2, drawRect.left + drawRect.width/2 - w2/2, drawRect.top + 35, 20, COLOR_WHITE);
+        } else {
+            int w = getTextWidth(btn.text, 20);
+            drawText(btn.text, drawRect.left + drawRect.width/2 - w/2, drawRect.top + drawRect.height/2 - 10, 20, COLOR_WHITE);
+        }
+    }
+}
+
+void Application::drawText(const std::string& text, float x, float y, int size, sf::Color color) {
+    sf::Text sfText;
+    sfText.setFont(font);
+    sfText.setString(text);
+    sfText.setCharacterSize(size);
+    sfText.setFillColor(color);
+    sfText.setPosition(x, y);
+    window.draw(sfText);
+}
+
+int Application::getTextWidth(const std::string& text, int size) {
+    sf::Text sfText;
+    sfText.setFont(font);
+    sfText.setString(text);
+    sfText.setCharacterSize(size);
+    return sfText.getLocalBounds().width;
 }

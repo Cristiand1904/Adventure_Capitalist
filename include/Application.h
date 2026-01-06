@@ -1,5 +1,5 @@
 #pragma once
-#include "raylib.h"
+#include <SFML/Graphics.hpp>
 #include "Game.h"
 #include <memory>
 #include <vector>
@@ -9,15 +9,18 @@
 class Application {
 private:
     std::unique_ptr<Game> game;
+    sf::RenderWindow window;
+    sf::Font font;
+    sf::Clock clock;
 
     enum class AppState { MENU, GAME };
     AppState currentState;
     float stateTransitionTimer;
 
     struct Button {
-        Rectangle rect;
+        sf::FloatRect rect;
         std::string text;
-        Color color;
+        sf::Color color;
         int businessIndex;
         enum Type { BUY, UPGRADE, MANAGER, START, NEW_GAME, LOAD_GAME, SAVE_EXIT, RESET } type;
         bool isPressed;
@@ -35,14 +38,14 @@ private:
     void initMenuUI();
     void initGameUI();
 
-    void update();
+    void update(float dt);
     void draw();
 
-    void updateMenu();
+    void updateMenu(float dt);
     void drawMenu();
 
-    void updateGame();
-    void updateGameNotifications();
+    void updateGame(float dt);
+    void updateGameNotifications(float dt);
     void updateGameInput();
     void updateGameButtonsState();
     void handleButtonClick(const Button& btn);
@@ -54,7 +57,11 @@ private:
     void drawGameNotifications();
 
     void createBusinessUI(int index, float yPos);
-    bool isButtonClicked(Button& btn);
+    bool isButtonClicked(Button& btn, const sf::Vector2i& mousePos);
+
+    void drawButton(const Button& btn, bool isCircle = false);
+    void drawText(const std::string& text, float x, float y, int size, sf::Color color);
+    int getTextWidth(const std::string& text, int size);
 
 public:
     Application(bool headless = false);
