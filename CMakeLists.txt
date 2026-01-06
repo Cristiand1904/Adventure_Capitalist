@@ -13,13 +13,12 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-# --- RAYLIB SETUP (Clean master) ---
 include(FetchContent)
 
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG        master
+    GIT_TAG        5.5
 )
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
@@ -27,7 +26,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(USE_EXTERNAL_GLFW OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(raylib)
-# -----------------------------------
+# ---------------------------------------------------------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
@@ -38,9 +37,6 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         include/Achievement.h
         include/Manager.h
         include/Wallet.h
-        include/LemonadeStand.h
-        include/Restaurant.h
-        include/IceCreamShop.h
         include/Exceptions.h
         include/Application.h
         src/Business.cpp
@@ -50,15 +46,11 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/Achievement.cpp
         src/Manager.cpp
         src/Wallet.cpp
-        src/LemonadeStand.cpp
-        src/Restaurant.cpp
-        src/IceCreamShop.cpp
         src/Application.cpp
 )
 
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
-# --- STATIC LINKING PENTRU TOT (Doar pe Windows) ---
 if(WIN32)
     target_link_options(${MAIN_EXECUTABLE_NAME} PRIVATE -static -static-libgcc -static-libstdc++)
 endif()

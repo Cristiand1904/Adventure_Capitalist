@@ -19,10 +19,9 @@ int Manager::getLevel() const {
 
 void Manager::upgrade() {
     level++;
-    cost *= 5.0; // Costul de upgrade al managerului creste de 5x
+    cost *= 5.0;
 }
 
 double Manager::getDiscountFactor() const {
-    // Fiecare nivel reduce costul upgrade-urilor cu 2%
     return std::pow(0.98, level - 1);
 }

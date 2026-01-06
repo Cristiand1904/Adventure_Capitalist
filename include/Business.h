@@ -6,9 +6,16 @@
 #include "Manager.h"
 #include "Upgrade.h"
 
+enum class BusinessType {
+    LEMONADE,
+    ICE_CREAM,
+    RESTAURANT
+};
+
 class Business {
-protected:
+private:
     std::string name;
+    BusinessType type;
     double profitPerCycle;
     double upgradeCost;
     double purchaseCost;
@@ -22,10 +29,11 @@ protected:
     double currentTimer;
     bool isProducing;
 
-    virtual void print(std::ostream& os) const;
+    double calculateRevenueImpl(double bonusMultiplier) const;
+    void print(std::ostream& os) const;
 
 public:
-    Business(const std::string& name, double profit, double upgrade, double cost, double time, double mngCost = 0);
+    Business(std::string name, BusinessType type, double profit, double upgrade, double cost, double time, double mngCost = 0);
 
     Business(const Business& other);
     Business& operator=(const Business& other);
@@ -34,8 +42,9 @@ public:
 
     virtual ~Business() = default;
 
-    virtual double calculateRevenue(double bonusMultiplier) const = 0;
-    virtual std::unique_ptr<Business> clone() const = 0;
+    std::unique_ptr<Business> clone() const;
+
+    double calculateRevenue(double bonusMultiplier) const;
 
     double update(double deltaTime);
     void startProduction();
@@ -47,11 +56,10 @@ public:
     void hireManager();
     void upgradeManager();
 
-    // Setteri pentru incarcare joc
     void setLevel(int lvl);
     void setOwned(bool o);
     void setManagerHired(bool h);
-    void setProfit(double p); // Necesara pentru a restaura profitul calculat
+    void setProfit(double p);
     void setUpgradeCost(double c);
 
     bool isOwned() const;

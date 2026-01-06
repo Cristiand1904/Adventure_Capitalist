@@ -15,5 +15,5 @@ public:
     int getLevel() const;
 
     void upgrade();
-    double getDiscountFactor() const; // Returneaza factorul de reducere (ex: 0.9)
+    double getDiscountFactor() const;
 };

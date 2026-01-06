@@ -7,7 +7,6 @@ protected:
 
 public:
     LemonadeStand();
-    // Adaugam parametrul time
     LemonadeStand(const std::string& name, double profit, double upgrade, double cost, double time);
 
     double calculateRevenue(double bonusMultiplier) const override;

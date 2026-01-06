@@ -30,16 +30,13 @@ public:
     const std::vector<std::unique_ptr<Business>>& getBusinesses() const;
     const std::vector<Achievement>& getAchievements() const;
 
-    // Setteri pentru incarcare
     void setMoney(double m);
-    void unlockAchievement(const std::string& achievementName); // Redenumit
+    void unlockAchievement(const std::string& achievementName);
 
     std::vector<std::string> update(double deltaTime);
     std::vector<std::string> checkAchievements();
 
     void startBusinessProduction(int index);
-
-    void displayBusinesses() const;
 
     void purchaseBusiness(int index);
     void upgradeBusiness(int index);

@@ -2,7 +2,7 @@
 #include <iostream>
 
 Restaurant::Restaurant()
-    : Business("Restaurant", 100, 400, 1000, 10.0) {} // 10 secunde
+    : Business("Restaurant", 100, 400, 1000, 10.0) {}
 
 Restaurant::Restaurant(const std::string& name, double profit, double upgrade, double cost, double time)
     : Business(name, profit, upgrade, cost, time) {}
@@ -16,7 +16,6 @@ std::unique_ptr<Business> Restaurant::clone() const {
 }
 
 void Restaurant::receiveMichelinStar() {
-    // Implementare simplificata
 }
 
 void Restaurant::print(std::ostream& os) const {

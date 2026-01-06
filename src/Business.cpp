@@ -4,8 +4,9 @@
 #include <utility>
 #include <cmath>
 
-Business::Business(const std::string& name, double profit, double upgrade, double cost, double time, double mngCost)
-    : name(name),
+Business::Business(std::string name, BusinessType type, double profit, double upgrade, double cost, double time, double mngCost)
+    : name(std::move(name)),
+      type(type),
       profitPerCycle(profit),
       upgradeCost(upgrade),
       purchaseCost(cost),
@@ -32,6 +33,7 @@ Business::Business(const std::string& name, double profit, double upgrade, doubl
 
 Business::Business(const Business& other)
     : name(other.name),
+      type(other.type),
       profitPerCycle(other.profitPerCycle),
       upgradeCost(other.upgradeCost),
       purchaseCost(other.purchaseCost),
@@ -54,6 +56,7 @@ Business& Business::operator=(const Business& other) {
         return *this;
     }
     name = other.name;
+    type = other.type;
     profitPerCycle = other.profitPerCycle;
     upgradeCost = other.upgradeCost;
     purchaseCost = other.purchaseCost;
@@ -70,6 +73,29 @@ Business& Business::operator=(const Business& other) {
         manager = nullptr;
     }
     return *this;
+}
+
+std::unique_ptr<Business> Business::clone() const {
+    return std::make_unique<Business>(*this);
+}
+
+double Business::calculateRevenue(double bonusMultiplier) const {
+    return calculateRevenueImpl(bonusMultiplier);
+}
+
+double Business::calculateRevenueImpl(double bonusMultiplier) const {
+    double baseRevenue = getProfitPerCycle() * bonusMultiplier;
+
+    switch (type) {
+        case BusinessType::LEMONADE:
+            return baseRevenue * 1.5;
+        case BusinessType::ICE_CREAM:
+            return baseRevenue * 1.2;
+        case BusinessType::RESTAURANT:
+            return getProfitPerCycle() * (1.0 + (bonusMultiplier - 1.0) * 0.5);
+        default:
+            return baseRevenue;
+    }
 }
 
 double Business::update(double deltaTime) {
@@ -133,7 +159,6 @@ void Business::upgradeManager() {
     }
 }
 
-// Setteri
 void Business::setLevel(int lvl) { level = lvl; }
 void Business::setOwned(bool o) { owned = o; }
 void Business::setManagerHired(bool h) {

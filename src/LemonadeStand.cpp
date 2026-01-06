@@ -2,10 +2,10 @@
 #include <iostream>
 
 LemonadeStand::LemonadeStand()
-    : Business("Limonada", 1, 4, 0, 1.0) {} // Cost 0 (Gratuit la inceput)
+    : Business("Limonada", 1, 4, 0, 1.0) {}
 
 LemonadeStand::LemonadeStand(const std::string& name, double profit, double upgrade, double cost, double time)
-    : Business(name, profit, upgrade, cost, time) {} // Constructorul generic pastreaza costul dat
+    : Business(name, profit, upgrade, cost, time) {}
 
 double LemonadeStand::calculateRevenue(double bonusMultiplier) const {
     return getProfitPerCycle() * bonusMultiplier * 1.5;

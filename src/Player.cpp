@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <utility>
+#include <stdexcept>
 
 Player::Player(const std::string& name, double money)
     : name(name), wallet(money) {
@@ -10,22 +11,11 @@ Player::Player(const std::string& name, double money)
 }
 
 void Player::initAchievements() {
-    // 1. Primul Dolar - 10$
     achievements.emplace_back("Primul Dolar", "Castiga primul tau dolar", 10.0, AchievementType::MONEY, 1.0);
-
-    // 2. Primul Upgrade - 10$
     achievements.emplace_back("Primul Upgrade", "Fa un upgrade la o afacere", 10.0, AchievementType::HAS_UPGRADE, 1.0);
-
-    // 3. Primul Manager - 10$
     achievements.emplace_back("Primul Manager", "Angajeaza un manager", 10.0, AchievementType::HAS_MANAGER, 1.0);
-
-    // 4. 100 Dolari - 100$
     achievements.emplace_back("Suta de Dolari", "Strange 100$", 100.0, AchievementType::MONEY, 100.0);
-
-    // 5. 1.000 Dolari - 500$
     achievements.emplace_back("Mie de Dolari", "Strange 1.000$", 500.0, AchievementType::MONEY, 1000.0);
-
-    // 6. 100.000 Dolari - 50000$
     achievements.emplace_back("Magnat", "Strange 100.000$", 50000.0, AchievementType::MONEY, 100000.0);
 }
 
@@ -111,21 +101,12 @@ std::vector<std::string> Player::checkAchievements() {
 }
 
 void Player::startBusinessProduction(int index) {
-    if (index >= 0 && static_cast<size_t>(index) < businesses.size()) {
-        businesses[index]->startProduction();
-    }
-}
-
-void Player::displayBusinesses() const {
-    // ...
+    businesses.at(index)->startProduction();
 }
 
 void Player::purchaseBusiness(int index_int) {
-    size_t index = static_cast<size_t>(index_int);
-    if (index >= businesses.size()) {
-        throw InvalidBusinessIndexException(index_int + 1);
-    }
-    const auto& business = businesses[index];
+    const auto& business = businesses.at(index_int);
+
     if (business->isOwned()) {
         throw BusinessAlreadyOwnedException(business->getName());
     }
@@ -135,11 +116,8 @@ void Player::purchaseBusiness(int index_int) {
 }
 
 void Player::upgradeBusiness(int index_int) {
-    size_t index = static_cast<size_t>(index_int);
-    if (index >= businesses.size()) {
-        throw InvalidBusinessIndexException(index_int + 1);
-    }
-    const auto& business = businesses[index];
+    const auto& business = businesses.at(index_int);
+
     if (!business->isOwned()) {
         throw BusinessNotOwnedException(business->getName());
     }
@@ -149,11 +127,8 @@ void Player::upgradeBusiness(int index_int) {
 }
 
 void Player::hireManager(int index_int) {
-    size_t index = static_cast<size_t>(index_int);
-    if (index >= businesses.size()) {
-        throw InvalidBusinessIndexException(index_int + 1);
-    }
-    const auto& business = businesses[index];
+    const auto& business = businesses.at(index_int);
+
     if (!business->isOwned()) {
         throw BusinessNotOwnedException(business->getName());
     }
@@ -163,11 +138,8 @@ void Player::hireManager(int index_int) {
 }
 
 void Player::upgradeManager(int index_int) {
-    size_t index = static_cast<size_t>(index_int);
-    if (index >= businesses.size()) {
-        throw InvalidBusinessIndexException(index_int + 1);
-    }
-    const auto& business = businesses[index];
+    const auto& business = businesses.at(index_int);
+
     if (!business->hasManagerHired()) {
         throw BusinessNotOwnedException(business->getName() + " Manager");
     }

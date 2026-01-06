@@ -13,9 +13,9 @@ Game::Game(const std::string& playerName, double initialMoney)
 }
 
 void Game::setupBusinesses() {
-    player.addBusiness(std::make_unique<LemonadeStand>());
-    player.addBusiness(std::make_unique<IceCreamShop>());
-    player.addBusiness(std::make_unique<Restaurant>());
+    player.addBusiness(std::make_unique<Business>("Limonada", BusinessType::LEMONADE, 1, 4, 0, 1.0, 100.0));
+    player.addBusiness(std::make_unique<Business>("Inghetata", BusinessType::ICE_CREAM, 10, 40, 100, 3.0, 1000.0));
+    player.addBusiness(std::make_unique<Business>("Restaurant", BusinessType::RESTAURANT, 100, 400, 1000, 10.0, 10000.0));
 }
 
 std::vector<std::string> Game::update(double deltaTime) {
@@ -29,10 +29,8 @@ void Game::saveGame(const std::string& filename) const {
         return;
     }
 
-    // Salvam banii
     outFile << player.getMoney() << "\n";
 
-    // Salvam afacerile
     const auto& businesses = player.getBusinesses();
     outFile << businesses.size() << "\n";
     for (const auto& b : businesses) {
@@ -44,12 +42,9 @@ void Game::saveGame(const std::string& filename) const {
                 << b->getUpgradeCost() << "\n";
     }
 
-    // Salvam achievement-urile
     const auto& achievements = player.getAchievements();
     outFile << achievements.size() << "\n";
     for (const auto& ach : achievements) {
-        // Salvam numele cu _ in loc de spatiu pentru citire usoara, sau folosim getline la incarcare
-        // Pentru simplitate, salvam doar statusul (0/1) in ordinea din vector
         outFile << ach.isUnlocked() << "\n";
     }
 
@@ -71,23 +66,12 @@ bool Game::loadGame(const std::string& filename) {
     inFile >> businessCount;
 
     const auto& businesses = player.getBusinesses();
-    // Presupunem ca ordinea afacerilor e aceeasi (Lemonade, IceCream, Restaurant)
     for (int i = 0; i < businessCount && i < (int)businesses.size(); ++i) {
-        std::string name; // Citim numele dar il ignoram (e doar pentru debug in fisier)
+        std::string name;
         int level;
         bool owned, hasManager;
         double profit, upgradeCost;
 
-        // Citim numele care poate avea spatii (ex: "Limonada")
-        // Dar in fisier am scris cu spatii. E mai sigur sa citim pana la numar.
-        // Hack: stim ca primul camp e string, restul numere.
-        // Daca numele are spatii, >> se opreste la spatiu.
-        // Voi citi numele cuvant cu cuvant pana dau de un numar? Complicat.
-        // Voi simplifica salvarea: nu salvez numele, doar datele. Ordinea e fixa.
-
-        // RECTIFICARE: Nu pot citi numele usor daca are spatii.
-        // Voi citi un string dummy, sperand ca numele nu are spatii in salvarea anterioara.
-        // "Limonada" e ok. "Inghetata" e ok. "Restaurant" e ok.
         inFile >> name >> level >> owned >> hasManager >> profit >> upgradeCost;
 
         businesses[i]->setLevel(level);
@@ -96,10 +80,9 @@ bool Game::loadGame(const std::string& filename) {
         businesses[i]->setProfit(profit);
         businesses[i]->setUpgradeCost(upgradeCost);
 
-        // Daca e owned, pornim productia manuala (sau automata daca are manager)
         if (owned) {
-            if (hasManager) businesses[i]->hireManager(); // Re-activeaza logica managerului
-            else businesses[i]->unlock(); // Doar seteaza owned=true
+            if (hasManager) businesses[i]->hireManager();
+            else businesses[i]->unlock();
         }
     }
 
@@ -110,12 +93,6 @@ bool Game::loadGame(const std::string& filename) {
         bool unlocked;
         inFile >> unlocked;
         if (unlocked) {
-            // Deblocam fara a da reward din nou (folosim o metoda privata sau friend, sau pur si simplu setam starea)
-            // Dar Achievement nu are setter pentru unlocked.
-            // Voi folosi unlockAchievement din Player care apeleaza unlock().
-            // unlock() seteaza doar bool-ul, nu da bani (banii se dau in checkAchievements).
-            // Stai, checkAchievements da banii. unlock() e simplu.
-            // Deci e ok sa apelam unlockAchievement.
             player.unlockAchievement(achievements[i].getName());
         }
     }

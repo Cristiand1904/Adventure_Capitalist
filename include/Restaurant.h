@@ -12,5 +12,5 @@ public:
     double calculateRevenue(double bonusMultiplier) const override;
     std::unique_ptr<Business> clone() const override;
 
-    void receiveMichelinStar(); // Adaugat
+    void receiveMichelinStar();
 };

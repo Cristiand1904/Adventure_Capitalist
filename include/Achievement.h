@@ -6,7 +6,7 @@ enum class AchievementType {
     MONEY,
     TOTAL_LEVELS,
     HAS_MANAGER,
-    HAS_UPGRADE // Consideram upgrade orice nivel > 1
+    HAS_UPGRADE
 };
 
 class Achievement {
@@ -16,7 +16,7 @@ private:
     bool unlocked;
 
     AchievementType type;
-    double targetValue; // Suma de bani, nivelul, sau 1.0 pentru bool
+    double targetValue;
     double reward;
 
 public:

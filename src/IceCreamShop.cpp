@@ -2,7 +2,7 @@
 #include <iostream>
 
 IceCreamShop::IceCreamShop()
-    : Business("Inghetata", 10, 40, 100, 3.0) {} // 3 secunde
+    : Business("Inghetata", 10, 40, 100, 3.0) {}
 
 IceCreamShop::IceCreamShop(const std::string& name, double profit, double upgrade, double cost)
     : Business(name, profit, upgrade, cost, 3.0) {}

@@ -3,7 +3,7 @@
 #include <string>
 #include <cmath>
 #include <cstdio>
-#include <filesystem> // Pentru stergerea fisierului
+#include <filesystem>
 
 #define COLOR_BG        CLITERAL(Color){ 30, 30, 35, 255 }
 #define COLOR_PANEL     CLITERAL(Color){ 50, 50, 55, 255 }
@@ -19,39 +19,52 @@ Application::Application() {
     InitWindow(1000, 750, "Adventure Capitalist - Ultimate Edition");
     SetTargetFPS(60);
 
-    game = std::make_unique<Game>("Capitalist", 0.0);
-
-    if (Game::saveFileExists()) {
-        std::cout << "Save file found. Loading...\n";
-        if (game->loadGame()) {
-            std::cout << "Game loaded successfully.\n";
-        } else {
-            std::cout << "Failed to load game.\n";
-        }
-    } else {
-        std::cout << "No save file. Starting new game.\n";
-    }
-
+    currentState = AppState::MENU;
+    stateTransitionTimer = 0.0f;
     initUI();
 }
 
 void Application::initUI() {
-    buttons.clear();
+    initMenuUI();
+}
+
+void Application::initMenuUI() {
+    menuButtons.clear();
+
+    Button newGameBtn;
+    newGameBtn.rect = { 350, 300, 300, 80 };
+    newGameBtn.text = "NEW GAME";
+    newGameBtn.color = COLOR_GREEN;
+    newGameBtn.type = Button::NEW_GAME;
+    newGameBtn.isPressed = false;
+    menuButtons.push_back(newGameBtn);
+
+    if (Game::saveFileExists()) {
+        Button loadGameBtn;
+        loadGameBtn.rect = { 350, 400, 300, 80 };
+        loadGameBtn.text = "LOAD GAME";
+        loadGameBtn.color = COLOR_BLUE;
+        loadGameBtn.type = Button::LOAD_GAME;
+        loadGameBtn.isPressed = false;
+        menuButtons.push_back(loadGameBtn);
+    }
+}
+
+void Application::initGameUI() {
+    gameButtons.clear();
     for(int i=0; i<3; ++i) {
         createBusinessUI(i, 140 + i * 130);
     }
 
-    // Buton Save & Exit (Mai lat)
     Button saveBtn;
-    saveBtn.rect = { 820, 20, 160, 50 }; // Latime marita la 160
+    saveBtn.rect = { 820, 20, 160, 50 };
     saveBtn.text = "SAVE & EXIT";
     saveBtn.color = COLOR_RED;
     saveBtn.type = Button::SAVE_EXIT;
     saveBtn.businessIndex = -1;
     saveBtn.isPressed = false;
-    buttons.push_back(saveBtn);
+    gameButtons.push_back(saveBtn);
 
-    // Buton Reset (Stanga sus)
     Button resetBtn;
     resetBtn.rect = { 20, 20, 100, 50 };
     resetBtn.text = "RESET";
@@ -59,7 +72,7 @@ void Application::initUI() {
     resetBtn.type = Button::RESET;
     resetBtn.businessIndex = -1;
     resetBtn.isPressed = false;
-    buttons.push_back(resetBtn);
+    gameButtons.push_back(resetBtn);
 }
 
 void Application::createBusinessUI(int index, float yPos) {
@@ -70,7 +83,7 @@ void Application::createBusinessUI(int index, float yPos) {
     startBtn.type = Button::START;
     startBtn.businessIndex = index;
     startBtn.isPressed = false;
-    buttons.push_back(startBtn);
+    gameButtons.push_back(startBtn);
 
     Button buyBtn;
     buyBtn.rect = { 750, yPos + 15, 200, 60 };
@@ -79,7 +92,7 @@ void Application::createBusinessUI(int index, float yPos) {
     buyBtn.type = Button::UPGRADE;
     buyBtn.businessIndex = index;
     buyBtn.isPressed = false;
-    buttons.push_back(buyBtn);
+    gameButtons.push_back(buyBtn);
 
     Button mngBtn;
     mngBtn.rect = { 680, yPos + 15, 60, 60 };
@@ -88,7 +101,7 @@ void Application::createBusinessUI(int index, float yPos) {
     mngBtn.type = Button::MANAGER;
     mngBtn.businessIndex = index;
     mngBtn.isPressed = false;
-    buttons.push_back(mngBtn);
+    gameButtons.push_back(mngBtn);
 }
 
 void Application::run() {
@@ -100,6 +113,8 @@ void Application::run() {
 }
 
 bool Application::isButtonClicked(Button& btn) {
+    if (stateTransitionTimer > 0.0f) return false;
+
     Vector2 mousePoint = GetMousePosition();
     bool hover = CheckCollisionPointRec(mousePoint, btn.rect);
 
@@ -113,8 +128,46 @@ bool Application::isButtonClicked(Button& btn) {
 }
 
 void Application::update() {
-    if (!game) return;
+    if (stateTransitionTimer > 0.0f) {
+        stateTransitionTimer -= GetFrameTime();
+    }
 
+    if (currentState == AppState::MENU) {
+        updateMenu();
+    } else {
+        updateGame();
+    }
+}
+
+void Application::updateMenu() {
+    for (auto& btn : menuButtons) {
+        if (isButtonClicked(btn)) {
+            if (btn.type == Button::NEW_GAME) {
+                game = std::make_unique<Game>("Capitalist", 0.0);
+                initGameUI();
+                currentState = AppState::GAME;
+                stateTransitionTimer = 0.5f;
+                return;
+            } else if (btn.type == Button::LOAD_GAME) {
+                game = std::make_unique<Game>("Capitalist", 0.0);
+                if (game->loadGame()) {
+                    initGameUI();
+                    currentState = AppState::GAME;
+                    stateTransitionTimer = 0.5f;
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void Application::updateGame() {[[]]
+    updateGameNotifications();
+    updateGameInput();
+    updateGameButtonsState();
+}
+
+void Application::updateGameNotifications() {
     std::vector<std::string> newNotifications = game->update(GetFrameTime());
     for (const auto& msg : newNotifications) {
         notifications.push_back({msg, 3.0f});
@@ -126,52 +179,56 @@ void Application::update() {
             notifications.pop_front();
         }
     }
+}
 
-    for (auto& btn : buttons) {
+void Application::updateGameInput() {
+    for (auto& btn : gameButtons) {
         if (isButtonClicked(btn)) {
-            try {
-                if (btn.type == Button::SAVE_EXIT) {
-                    std::cout << "Saving and Exiting...\n";
-                    game->saveGame();
-                    CloseWindow();
-                    exit(0);
-                } else if (btn.type == Button::RESET) {
-                    std::cout << "Resetting game...\n";
-                    // Stergem fisierul de salvare
-                    if (Game::saveFileExists()) {
-                        std::filesystem::remove("savegame.txt");
-                    }
-                    // Reinitializam jocul
-                    game = std::make_unique<Game>("Capitalist", 0.0);
-                    notifications.push_back({"GAME RESET!", 2.0f});
-                } else if (btn.type == Button::START) {
-                    game->getPlayer().startBusinessProduction(btn.businessIndex);
-                } else if (btn.type == Button::UPGRADE) {
-                    const auto& businesses = game->getPlayer().getBusinesses();
-                    if (btn.businessIndex >= 0 && static_cast<size_t>(btn.businessIndex) < businesses.size()) {
-                        if (businesses[btn.businessIndex]->isOwned()) {
-                            game->getPlayer().upgradeBusiness(btn.businessIndex);
-                        } else {
-                            game->getPlayer().purchaseBusiness(btn.businessIndex);
-                        }
-                    }
-                } else if (btn.type == Button::MANAGER) {
-                    const auto& businesses = game->getPlayer().getBusinesses();
-                    if (businesses[btn.businessIndex]->hasManagerHired()) {
-                        game->getPlayer().upgradeManager(btn.businessIndex);
-                    } else {
-                        game->getPlayer().hireManager(btn.businessIndex);
-                    }
-                }
-            } catch (const std::exception& e) {
-                std::cout << "Eroare: " << e.what() << std::endl;
-            }
+            handleButtonClick(btn);
         }
     }
+}
 
+void Application::handleButtonClick(const Button& btn) {
+    try {
+        if (btn.type == Button::SAVE_EXIT) {
+            game->saveGame();
+            CloseWindow();
+            exit(0);
+        } else if (btn.type == Button::RESET) {
+            if (Game::saveFileExists()) {
+                std::filesystem::remove("savegame.txt");
+            }
+            game = std::make_unique<Game>("Capitalist", 0.0);
+            notifications.push_back({"GAME RESET!", 2.0f});
+        } else if (btn.type == Button::START) {
+            game->getPlayer().startBusinessProduction(btn.businessIndex);
+        } else if (btn.type == Button::UPGRADE) {
+            const auto& businesses = game->getPlayer().getBusinesses();
+            if (btn.businessIndex >= 0 && static_cast<size_t>(btn.businessIndex) < businesses.size()) {
+                if (businesses[btn.businessIndex]->isOwned()) {
+                    game->getPlayer().upgradeBusiness(btn.businessIndex);
+                } else {
+                    game->getPlayer().purchaseBusiness(btn.businessIndex);
+                }
+            }
+        } else if (btn.type == Button::MANAGER) {
+            const auto& businesses = game->getPlayer().getBusinesses();
+            if (businesses[btn.businessIndex]->hasManagerHired()) {
+                game->getPlayer().upgradeManager(btn.businessIndex);
+            } else {
+                game->getPlayer().hireManager(btn.businessIndex);
+            }
+        }
+    } catch (const std::exception& e) {
+        std::cout << "Eroare: " << e.what() << std::endl;
+    }
+}
+
+void Application::updateGameButtonsState() {
     const auto& businesses = game->getPlayer().getBusinesses();
 
-    for (auto& btn : buttons) {
+    for (auto& btn : gameButtons) {
         if (btn.businessIndex >= 0 && static_cast<size_t>(btn.businessIndex) < businesses.size()) {
             const auto& b = businesses[btn.businessIndex];
 
@@ -215,15 +272,52 @@ void Application::draw() {
     BeginDrawing();
     ClearBackground(COLOR_BG);
 
-    // Header
+    if (currentState == AppState::MENU) {
+        drawMenu();
+    } else {
+        drawGame();
+    }
+
+    EndDrawing();
+}
+
+void Application::drawMenu() {
+    DrawText("AdVenture Capitalist", 250, 150, 50, COLOR_ACCENT);
+
+    for (const auto& btn : menuButtons) {
+        Rectangle drawRect = btn.rect;
+        if (btn.isPressed) {
+            drawRect.x += 2; drawRect.y += 2;
+            drawRect.width -= 4; drawRect.height -= 4;
+        }
+        DrawRectangleRounded(drawRect, 0.2f, 10, btn.color);
+        DrawRectangleRoundedLines(drawRect, 0.2f, 10, BLACK);
+
+        int w = MeasureText(btn.text.c_str(), 30);
+        DrawText(btn.text.c_str(),
+                 drawRect.x + drawRect.width/2 - w/2,
+                 drawRect.y + drawRect.height/2 - 15,
+                 30, WHITE);
+    }
+}
+
+void Application::drawGame() {
+    drawGameHeader();
+    drawGameBusinesses();
+    drawGameButtons();
+    drawGameNotifications();
+}
+
+void Application::drawGameHeader() {
     DrawRectangle(0, 0, 1000, 100, BLACK);
-    DrawText("AdVenture Capitalist", 150, 30, 40, WHITE); // Mutat mai la dreapta pentru a face loc butonului Reset
+    DrawText("AdVenture Capitalist", 150, 30, 40, WHITE);
 
     std::string moneyStr = "$" + std::to_string((long long)game->getPlayer().getMoney());
     int moneyWidth = MeasureText(moneyStr.c_str(), 50);
-    // Ajustam pozitia banilor sa fie intre titlu si butonul Save
     DrawText(moneyStr.c_str(), 780 - moneyWidth, 25, 50, COLOR_ACCENT);
+}
 
+void Application::drawGameBusinesses() {
     const auto& businesses = game->getPlayer().getBusinesses();
 
     for (size_t i = 0; i < businesses.size(); ++i) {
@@ -262,8 +356,10 @@ void Application::draw() {
             DrawText("LOCKED", barX + 200, barY + 5, 24, COLOR_RED);
         }
     }
+}
 
-    for (const auto& btn : buttons) {
+void Application::drawGameButtons() {
+    for (const auto& btn : gameButtons) {
         Rectangle drawRect = btn.rect;
         if (btn.isPressed) {
             drawRect.x += 2; drawRect.y += 2;
@@ -303,7 +399,9 @@ void Application::draw() {
             }
         }
     }
+}
 
+void Application::drawGameNotifications() {
     if (!notifications.empty()) {
         const auto& notif = notifications.front();
         int textWidth = MeasureText(notif.text.c_str(), 30);
@@ -329,6 +427,4 @@ void Application::draw() {
              DrawText(notif.text.c_str(), boxX + 30, boxY + 45, 30, COLOR_ACCENT);
         }
     }
-
-    EndDrawing();
 }
