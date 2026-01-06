@@ -7,7 +7,7 @@ private:
     std::unique_ptr<Game> game;
 
 public:
-    Application(bool headless = false);
+    explicit Application(bool headless = false);
     void run();
     void runHeadless();
 };

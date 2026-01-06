@@ -1,9 +1,9 @@
 #include "../include/ApplicationHeadless.h"
 #include <iostream>
 
-Application::Application(bool headless) {
+Application::Application(bool headless)
+    : game(std::make_unique<Game>("Capitalist", 0.0)) {
     (void)headless;
-    game = std::make_unique<Game>("Capitalist", 0.0);
 }
 
 void Application::run() {
