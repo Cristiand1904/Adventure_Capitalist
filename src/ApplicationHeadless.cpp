@@ -16,4 +16,30 @@ void Application::runHeadless() {
         game->update(1.0f / 60.0f);
     }
     std::cout << "Headless run completed successfully.\n";
+
+    auto& player = game->getPlayer();
+    player.setMoney(10000.0);
+
+    const auto& businesses = player.getBusinesses();
+    if (!businesses.empty()) {
+        businesses[0]->getProgress();
+        businesses[0]->getProductionTime();
+        businesses[0]->isActive();
+        businesses[0]->setManagerHired(false);
+
+        try {
+            player.startBusinessProduction(0);
+            player.purchaseBusiness(0);
+            player.upgradeBusiness(0);
+        } catch (...) {}
+    }
+
+    const auto& achievements = player.getAchievements();
+    if (!achievements.empty()) {
+        achievements[0].getDescription();
+    }
+
+    game->saveGame("test.txt");
+    game->loadGame("test.txt");
+    game->saveFileExists("test.txt");
 }
