@@ -20,16 +20,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
-file(GLOB_RECURSE SOURCES
+file(GLOB SOURCES
         "${CMAKE_SOURCE_DIR}/src/*.cpp"
-        "${CMAKE_SOURCE_DIR}/main.cpp"
 )
+
+set(MAIN_SOURCE "${CMAKE_SOURCE_DIR}/main.cpp")
 
 file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${PROJECT_NAME} ${MAIN_SOURCE} ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/include
