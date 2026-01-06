@@ -6,16 +6,9 @@
 #include "Manager.h"
 #include "Upgrade.h"
 
-enum class BusinessType {
-    LEMONADE,
-    ICE_CREAM,
-    RESTAURANT
-};
-
 class Business {
-private:
+protected:
     std::string name;
-    BusinessType type;
     double profitPerCycle;
     double upgradeCost;
     double purchaseCost;
@@ -29,11 +22,10 @@ private:
     double currentTimer;
     bool isProducing;
 
-    double calculateRevenueImpl(double bonusMultiplier) const;
-    void print(std::ostream& os) const;
+    virtual void print(std::ostream& os) const;
 
 public:
-    Business(std::string name, BusinessType type, double profit, double upgrade, double cost, double time, double mngCost = 0);
+    Business(std::string name, double profit, double upgrade, double cost, double time, double mngCost = 0);
 
     Business(const Business& other);
     Business& operator=(const Business& other);
@@ -42,9 +34,9 @@ public:
 
     virtual ~Business() = default;
 
-    std::unique_ptr<Business> clone() const;
-
-    double calculateRevenue(double bonusMultiplier) const;
+    // Metode virtuale pure pentru polimorfism
+    virtual std::unique_ptr<Business> clone() const = 0;
+    virtual double calculateRevenue(double bonusMultiplier) const = 0;
 
     double update(double deltaTime);
     void startProduction();

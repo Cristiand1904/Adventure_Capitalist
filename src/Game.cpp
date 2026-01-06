@@ -1,5 +1,6 @@
 #include "../include/Game.h"
 #include "../include/Exceptions.h"
+#include "../include/StandardBusiness.h" // Includem derivata
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -13,9 +14,9 @@ Game::Game(const std::string& playerName, double initialMoney)
 }
 
 void Game::setupBusinesses() {
-    player.addBusiness(std::make_unique<Business>("Limonada", BusinessType::LEMONADE, 1, 4, 0, 1.0, 100.0));
-    player.addBusiness(std::make_unique<Business>("Inghetata", BusinessType::ICE_CREAM, 10, 40, 100, 3.0, 1000.0));
-    player.addBusiness(std::make_unique<Business>("Restaurant", BusinessType::RESTAURANT, 100, 400, 1000, 10.0, 10000.0));
+    player.addBusiness(std::make_unique<StandardBusiness>("Limonada", BusinessType::LEMONADE, 1, 4, 0, 1.0, 100.0));
+    player.addBusiness(std::make_unique<StandardBusiness>("Inghetata", BusinessType::ICE_CREAM, 10, 40, 100, 3.0, 1000.0));
+    player.addBusiness(std::make_unique<StandardBusiness>("Restaurant", BusinessType::RESTAURANT, 100, 400, 1000, 10.0, 10000.0));
 }
 
 std::vector<std::string> Game::update(double deltaTime) {
