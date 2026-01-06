@@ -169,6 +169,7 @@ void Application::update(float dt) {
 }
 
 void Application::updateMenu(float dt) {
+    (void)dt;
     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
     for (auto& btn : menuButtons) {
