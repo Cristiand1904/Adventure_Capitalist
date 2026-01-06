@@ -57,6 +57,7 @@ private:
     bool isButtonClicked(Button& btn);
 
 public:
-    Application();
+    Application(bool headless = false);
     void run();
+    void runHeadless();
 };

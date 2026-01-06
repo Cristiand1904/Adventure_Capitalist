@@ -15,12 +15,16 @@
 #define COLOR_ICON_RUN  CLITERAL(Color){ 150, 150, 150, 255 }
 #define COLOR_TEXT      CLITERAL(Color){ 240, 240, 240, 255 }
 
-Application::Application() {
-    InitWindow(1000, 750, "Adventure Capitalist - Ultimate Edition");
-    SetTargetFPS(60);
+Application::Application(bool headless) {
+    if (!headless) {
+        InitWindow(1000, 750, "Adventure Capitalist - Ultimate Edition");
+        SetTargetFPS(60);
+    }
 
     currentState = AppState::MENU;
     stateTransitionTimer = 0.0f;
+
+    game = std::make_unique<Game>("Capitalist", 0.0);
     initUI();
 }
 
@@ -112,6 +116,15 @@ void Application::run() {
     CloseWindow();
 }
 
+void Application::runHeadless() {
+    std::cout << "Running in HEADLESS mode (CI/CD)...\n";
+    // Simulam cateva frame-uri de update
+    for (int i = 0; i < 10; ++i) {
+        game->update(1.0f / 60.0f);
+    }
+    std::cout << "Headless run completed successfully.\n";
+}
+
 bool Application::isButtonClicked(Button& btn) {
     if (stateTransitionTimer > 0.0f) return false;
 
@@ -161,7 +174,7 @@ void Application::updateMenu() {
     }
 }
 
-void Application::updateGame() {[[]]
+void Application::updateGame() {
     updateGameNotifications();
     updateGameInput();
     updateGameButtonsState();
