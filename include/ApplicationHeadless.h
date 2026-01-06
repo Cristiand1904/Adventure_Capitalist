@@ -10,4 +10,5 @@ public:
     explicit Application(bool headless = false);
     void run();
     void runHeadless();
+    Game& getGame() { return *game; }
 };
