@@ -19,14 +19,19 @@ FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
     GIT_TAG        master
+
+    PATCH_COMMAND "${CMAKE_COMMAND}" -E echo "Patching Raylib CMakeLists.txt..."
 )
+
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(USE_EXTERNAL_GLFW OFF CACHE BOOL "" FORCE)
 
+cmake_policy(SET CMP0048 NEW)
+
 FetchContent_MakeAvailable(raylib)
-# -----------------------------------
+# ----------------------------------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
@@ -53,6 +58,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
 
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
+# --- STATIC LINKING PENTRU TOT (Windows) ---
 if(WIN32)
     target_link_options(${MAIN_EXECUTABLE_NAME} PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
