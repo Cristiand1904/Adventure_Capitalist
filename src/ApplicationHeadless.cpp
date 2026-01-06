@@ -1,4 +1,4 @@
-#include "../include/Application.h"
+#include "../include/ApplicationHeadless.h"
 #include <iostream>
 
 Application::Application(bool headless) {
