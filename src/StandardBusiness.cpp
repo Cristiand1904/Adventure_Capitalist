@@ -24,16 +24,5 @@ double StandardBusiness::calculateRevenue(double bonusMultiplier) const {
 }
 
 void StandardBusiness::print(std::ostream& os) const {
-    Business::display(os); // Apelam display din baza care apeleaza print-ul de baza (care e protected/private)
-    // Dar Business::print e protected/private.
-    // Business::display e public si apeleaza print.
-    // Aici suprascriem print.
-    // Putem apela Business::print daca e protected.
-    // Dar in Business.h e declarat virtual void print(std::ostream& os) const;
-    // Deci putem apela Business::print(os);
-
-    // Nota: In Business.h am facut print virtual protected.
-    // Deci:
-    // Business::print(os);
-    // os << " [Type: " << (int)type << "]";
+    Business::display(os);
 }

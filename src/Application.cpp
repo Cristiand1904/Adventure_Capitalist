@@ -118,7 +118,6 @@ void Application::run() {
 
 void Application::runHeadless() {
     std::cout << "Running in HEADLESS mode (CI/CD)...\n";
-    // Simulam cateva frame-uri de update
     for (int i = 0; i < 10; ++i) {
         game->update(1.0f / 60.0f);
     }

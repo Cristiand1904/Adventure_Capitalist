@@ -13,21 +13,30 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-# --- RAYLIB SETUP (Versiunea 5.5 - Cea mai stabila pentru Windows) ---
+# --- RAYLIB SETUP (master cu patch pentru CMake) ---
 include(FetchContent)
 
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG        5.5
+    GIT_TAG        master
+    PATCH_COMMAND "${CMAKE_COMMAND}" -E echo "cmake_minimum_required(VERSION 3.11)" > CMakeLists.txt.tmp && type CMakeLists.txt >> CMakeLists.txt.tmp && move /Y CMakeLists.txt.tmp CMakeLists.txt
 )
+
+FetchContent_Declare(
+    raylib
+    GIT_REPOSITORY https://github.com/raysan5/raylib.git
+    GIT_TAG        master
+    GIT_SHALLOW    FALSE
+)
+
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(USE_EXTERNAL_GLFW OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(raylib)
-# ---------------------------------------------------------------------
+# ----------------------------------------------
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp

@@ -34,7 +34,6 @@ public:
 
     virtual ~Business() = default;
 
-    // Metode virtuale pure pentru polimorfism
     virtual std::unique_ptr<Business> clone() const = 0;
     virtual double calculateRevenue(double bonusMultiplier) const = 0;
 
