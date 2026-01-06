@@ -13,13 +13,22 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-include(FetchContent)
-FetchContent_Declare(
-        SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.2
-)
-FetchContent_MakeAvailable(SFML)
+if(DEFINED ENV{GITHUB_ACTIONS})
+    message(STATUS "Building in CI/CD mode - headless only")
+    set(HEADLESS_BUILD ON)
+else()
+    set(HEADLESS_BUILD OFF)
+endif()
+
+if(NOT HEADLESS_BUILD)
+    include(FetchContent)
+    FetchContent_Declare(
+            SFML
+            GIT_REPOSITORY https://github.com/SFML/SFML.git
+            GIT_TAG 2.6.2
+    )
+    FetchContent_MakeAvailable(SFML)
+endif()
 
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
@@ -46,9 +55,11 @@ add_executable(${MAIN_EXECUTABLE_NAME}
 
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
-target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
+if(NOT HEADLESS_BUILD)
+    target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
+endif()
 
-if(WIN32)
+if(WIN32 AND NOT HEADLESS_BUILD)
     target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-main)
     target_link_options(${MAIN_EXECUTABLE_NAME} PRIVATE -static -static-libgcc -static-libstdc++ -mconsole)
 endif()
