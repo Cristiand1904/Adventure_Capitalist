@@ -47,6 +47,10 @@ if(HEADLESS_BUILD)
     target_compile_definitions(${MAIN_EXECUTABLE_NAME} PRIVATE USE_HEADLESS_APP)
 else()
     include(FetchContent)
+
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(SFML_USE_STATIC_STD_LIBS ON CACHE BOOL "" FORCE)
+
     FetchContent_Declare(
             SFML
             GIT_REPOSITORY https://github.com/SFML/SFML.git
