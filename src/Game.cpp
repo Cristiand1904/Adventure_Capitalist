@@ -39,9 +39,9 @@ void Game::saveGame(const std::string& filename) const {
                 << b->getLevel() << " "
                 << b->isOwned() << " "
                 << b->hasManagerHired() << " "
+                << b->getManagerLevel() << " "
                 << b->getProfitPerCycle() << " "
-                << b->getUpgradeCost() << " "
-                << b->getManagerUpgradeCost() << "\n";
+                << b->getUpgradeCost() << "\n";
     }
 
     const auto& achievements = player.getAchievements();
@@ -72,9 +72,10 @@ bool Game::loadGame(const std::string& filename) {
         std::string name;
         int level;
         bool owned, hasManager;
-        double profit, upgradeCost, managerCost;
+        int managerLevel;
+        double profit, upgradeCost;
 
-        inFile >> name >> level >> owned >> hasManager >> profit >> upgradeCost >> managerCost;
+        inFile >> name >> level >> owned >> hasManager >> managerLevel >> profit >> upgradeCost;
 
         businesses[i]->setLevel(level);
         businesses[i]->setOwned(owned);
@@ -85,7 +86,7 @@ bool Game::loadGame(const std::string& filename) {
             businesses[i]->unlock();
             if (hasManager) {
                 businesses[i]->hireManager();
-                for (int j = 1; j < level && businesses[i]->getManagerUpgradeCost() < managerCost; ++j) {
+                for (int j = 1; j < managerLevel; ++j) {
                     businesses[i]->upgradeManager();
                 }
             }

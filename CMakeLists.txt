@@ -13,12 +13,7 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-if(DEFINED ENV{GITHUB_ACTIONS})
-    message(STATUS "Building in CI/CD mode - headless only")
-    set(HEADLESS_BUILD ON)
-else()
-    set(HEADLESS_BUILD OFF)
-endif()
+set(HEADLESS_BUILD OFF)
 
 if(HEADLESS_BUILD)
     add_executable(${MAIN_EXECUTABLE_NAME}

@@ -184,6 +184,13 @@ double Business::getProgress() const {
 double Business::getProductionTime() const { return productionTime; }
 bool Business::isActive() const { return isProducing; }
 
+int Business::getManagerLevel() const {
+    if (manager) {
+        return manager->getLevel();
+    }
+    return 0;
+}
+
 void Business::display(std::ostream& os) const {
     print(os);
 }

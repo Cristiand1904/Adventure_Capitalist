@@ -67,6 +67,8 @@ public:
     double getProductionTime() const;
     bool isActive() const;
 
+    int getManagerLevel() const;
+
     friend void swap(Business& first, Business& second) noexcept;
     friend std::ostream& operator<<(std::ostream& os, const Business& b);
 };

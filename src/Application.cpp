@@ -266,6 +266,7 @@ void Application::handleButtonClick(const Button& btn) {
 
 void Application::updateGameButtonsState() {
     const auto& businesses = game->getPlayer().getBusinesses();
+    double playerMoney = game->getPlayer().getMoney();
 
     for (auto& btn : gameButtons) {
         if (btn.businessIndex >= 0 && static_cast<size_t>(btn.businessIndex) < businesses.size()) {
@@ -274,23 +275,39 @@ void Application::updateGameButtonsState() {
             if (btn.type == Button::UPGRADE) {
                 if (b->isOwned()) {
                     btn.text = "BUY x1\n$" + std::to_string((int)b->getUpgradeCost());
-                    btn.color = COLOR_ACCENT;
+                    if (playerMoney >= b->getUpgradeCost()) {
+                        btn.color = COLOR_GREEN;
+                    } else {
+                        btn.color = COLOR_ACCENT;
+                    }
                 } else {
                     if (b->getPurchaseCost() == 0) {
                         btn.text = "FREE!";
                         btn.color = COLOR_GREEN;
                     } else {
                         btn.text = "UNLOCK\n$" + std::to_string((int)b->getPurchaseCost());
-                        btn.color = COLOR_RED;
+                        if (playerMoney >= b->getPurchaseCost()) {
+                            btn.color = COLOR_GREEN;
+                        } else {
+                            btn.color = COLOR_RED;
+                        }
                     }
                 }
             } else if (btn.type == Button::MANAGER) {
                 if (b->hasManagerHired()) {
                     btn.text = "UPG\n$" + std::to_string((int)b->getManagerUpgradeCost());
-                    btn.color = COLOR_GREEN;
+                    if (playerMoney >= b->getManagerUpgradeCost()) {
+                        btn.color = COLOR_GREEN;
+                    } else {
+                        btn.color = COLOR_GRAY;
+                    }
                 } else {
                     btn.text = "MNG\n$" + std::to_string((int)b->getManagerCost());
-                    btn.color = COLOR_GRAY;
+                    if (playerMoney >= b->getManagerCost()) {
+                        btn.color = COLOR_GREEN;
+                    } else {
+                        btn.color = COLOR_GRAY;
+                    }
                 }
             } else if (btn.type == Button::START) {
                 if (!b->isOwned()) {
