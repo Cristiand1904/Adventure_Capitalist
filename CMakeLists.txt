@@ -48,8 +48,7 @@ if(HEADLESS_BUILD)
 else()
     include(FetchContent)
 
-    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-    set(SFML_USE_STATIC_STD_LIBS ON CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 
     FetchContent_Declare(
             SFML
@@ -82,6 +81,17 @@ else()
     )
 
     target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
+
+    if(WIN32)
+        add_custom_command(TARGET ${MAIN_EXECUTABLE_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:sfml-graphics>
+                $<TARGET_FILE:sfml-window>
+                $<TARGET_FILE:sfml-system>
+                $<TARGET_FILE_DIR:${MAIN_EXECUTABLE_NAME}>
+                COMMENT "Copying SFML DLLs to output directory"
+        )
+    endif()
 endif()
 
 if(WIN32 AND MSVC)
