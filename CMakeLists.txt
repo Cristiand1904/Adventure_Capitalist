@@ -14,7 +14,6 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
 if(DEFINED ENV{GITHUB_ACTIONS} AND NOT WIN32)
-    message(STATUS "Building in CI/CD mode - headless only")
     set(HEADLESS_BUILD ON)
 else()
     set(HEADLESS_BUILD OFF)
@@ -86,9 +85,17 @@ endif()
 
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
+if(WIN32)
+    if(MSVC)
+        target_compile_options(${MAIN_EXECUTABLE_NAME} PRIVATE /MTd)
+    endif()
+endif()
+
 if(WIN32 AND NOT HEADLESS_BUILD)
     target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-main)
-    target_link_options(${MAIN_EXECUTABLE_NAME} PRIVATE -static -static-libgcc -static-libstdc++ -mconsole)
+    if(NOT MSVC)
+        target_link_options(${MAIN_EXECUTABLE_NAME} PRIVATE -static -static-libgcc -static-libstdc++ -mconsole)
+    endif()
 endif()
 
 install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})
