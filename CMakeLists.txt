@@ -13,7 +13,7 @@ include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
-if(DEFINED ENV{GITHUB_ACTIONS})
+if(DEFINED ENV{GITHUB_ACTIONS} AND NOT WIN32)
     message(STATUS "Building in CI/CD mode - headless only")
     set(HEADLESS_BUILD ON)
 else()
