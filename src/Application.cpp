@@ -22,10 +22,14 @@ Application::Application(bool headless) {
     window.create(sf::VideoMode(1000, 750), "Adventure Capitalist - Ultimate Edition");
     window.setFramerateLimit(60);
 
-    if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")) {
-        if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
-            if (!font.loadFromFile("/System/Library/Fonts/Supplemental/Arial.ttf")) {
-                std::cerr << "Failed to load font!\n";
+    if (!font.loadFromFile("Roboto-Regular.ttf")) {
+        if (!font.loadFromFile("fonts/Roboto-Regular.ttf")) {
+            if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
+                if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")) {
+                    if (!font.loadFromFile("/System/Library/Fonts/Supplemental/Arial.ttf")) {
+                        std::cerr << "Failed to load font! Download Roboto-Regular.ttf from fonts.google.com\n";
+                    }
+                }
             }
         }
     }
